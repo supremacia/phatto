@@ -18,8 +18,7 @@ define('_HTMLPATH', _PHPPATH.'/Html');	// Path to HTML files (templates)
 define('_WWWPATH',  __DIR__.'/public');	// Path to public folder
 define('_APPMOD',   'dev');				// Application modes: dev|pro
 
-// Optional base of application url (the router creates, if it is not preset here)
-// define('_URL', 'https://example.com');
+// define('_URL', 'https://example.com'); // force, but the router creates this
 
 
 // Composer ( & all others ) autoload --
@@ -28,14 +27,12 @@ include _PHPPATH.'/Composer/autoload.php';
 
 //Optional and simple autoload, when not using Composer
 /*
-
 spl_autoload_register(
 	function ($class) {
 		$file = str_replace('\\', '/', _PHPPATH.'/'.$class.'.php');
 		if(file_exists($file)) require $file;
 	}
 );
-
 */
 
 
