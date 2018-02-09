@@ -1,0 +1,14 @@
+{
+	"config":{
+		"vendor-dir":".php/Composer"
+	},
+	"autoload":{
+		"psr-4":{
+			"":".php",
+			"Config\\":".php/Config"
+		}
+	},
+	"require": {
+
+	}
+}
