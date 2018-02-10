@@ -1,4 +1,14 @@
 {
+	"name": "supremacia/phatto",
+	"description": "Micro boot for server applications with PHP.",
+    	"keywords": ["framework","php","web","site","server","side"],
+    	"license": "MIT",
+    	"type": "project",
+    	"homepage": "https://github.com/supremacia/phatto",
+    	"authors": [{
+        	"name": "Bill Rocha",
+        	"email": "prbr@ymail.com"
+    	}],
 	"config":{
 		"vendor-dir":".php/Composer"
 	},
@@ -10,5 +20,8 @@
 	},
 	"require": {
 
-	}
+	},
+    	"scripts": {
+        	"run":	["php index.php"]
+    	}
 }
