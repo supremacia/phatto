@@ -33,14 +33,16 @@ class Controller
 	function __construct()
 	{
 		$this->View = new Html;
-		$this->View->setPathHtml(__DIR__.'/Html'); //opcional for MVC in module - comment this line for normal MVC (.php/Html/ [FILES].html)
+
+		//opcional for MVC in module
+		//  --> comment this line for normal MVC (.php/Html/ [FILES].html)
+		$this->View->setPathHtml(__DIR__.'/Html'); 
 	}
 
 
 	public function home()
-	{		
+	{
 		$this->View->sendPage();
-
 	}
 
 

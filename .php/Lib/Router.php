@@ -1,15 +1,15 @@
 <?php 
 /**
- * Devbr\Router
+ * Lib\Router
  * PHP version 7
  *
  * @category  Access
- * @package   Librarys
+ * @package   Library
  * @author    Bill Rocha <prbr@ymail.com>
- * @copyright 2016 Bill Rocha <http://google.com/+BillRocha>
+ * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.1
- * @link      https://github.com/devbr
+ * @link      Author contacts <http://billrocha.tk>
  */
 namespace Lib;
 
@@ -17,10 +17,10 @@ namespace Lib;
  * Router Class
  *
  * @category Access
- * @package  Librarys
+ * @package  Library
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     https://github.com/devbr
+ * @link     Author contacts <http://billrocha.tk>
  */
 class Router
 {

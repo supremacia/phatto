@@ -1,27 +1,26 @@
 <?php
 /**
- * Devbr\Html
+ * Lib\Html
  * PHP version 7
  *
  * @category  Html
  * @package   Library
  * @author    Bill Rocha <prbr@ymail.com>
- * @copyright 2016 Bill Rocha <http://google.com/+BillRocha>
+ * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.2
- * @link      http://dbrasil.tk/devbr
+ * @link      Author contacts <http://billrocha.tk>
  */
 namespace Lib;
 
-
 /**
- * Devbr\Html Class
+ * Html Class
  *
  * @category Html
  * @package  Library
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     http://dbrasil.tk/devbr
+ * @link     Author contacts <http://billrocha.tk>
  */
 class Html
 {

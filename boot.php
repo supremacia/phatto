@@ -38,3 +38,29 @@ spl_autoload_register(
 
 // Running Router
 ( new Lib\Router)->run();
+
+
+##### That's all for now folks! #####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//ATT: ----------------------------------------------------- <<
+//     Debug only when in development
+//     In production, please DELETE from this comment.
+function e($v){exit('<pre>'.print_r($v, true).'</pre>');}
+function p($v){echo '<pre>'.print_r($v, true).'</pre>';}
+

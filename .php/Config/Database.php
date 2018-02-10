@@ -27,10 +27,14 @@ namespace Config;
 class Database
 {
     static $config = [
-            'mysql'=>[
+            'mysqlxx'=>[
                 'dsn'=>'mysql:host=localhost;dbname=[ DATABASE ];charset=utf8',
                 'user'=>'[ USERNAME ]',
                 'passw'=>'[ PASSWORD ]'],
+            'mysql'=>[
+                'dsn'=>'mysql:host=localhost;dbname=delivre;charset=utf8',
+                'user'=>'delivre',
+                'passw'=>'delivre#123456'],
             'sqlite'=>['dsn'=>'sqlite.db']
             ];
     static $default = 'mysql';

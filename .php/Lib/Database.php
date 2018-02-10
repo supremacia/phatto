@@ -1,15 +1,15 @@
 <?php
 /**
- * Devbr\Database
+ * Lib\Database
  * PHP version 7
  *
  * @category  Database
- * @package   Data
+ * @package   Library
  * @author    Bill Rocha <prbr@ymail.com>
- * @copyright 2016 Bill Rocha <http://google.com/+BillRocha>
+ * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.1
- * @link      http://dbrasil.tk/devbr
+ * @link      Author contacts <http://billrocha.tk>
  */
 namespace Lib;
 use PDO;
@@ -18,10 +18,10 @@ use PDO;
  * Database Class
  *
  * @category Database
- * @package  Data
+ * @package  Library
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     http://dbrasil.tk/devbr
+ * @link     Author contacts <http://billrocha.tk>
  */
 class Database
 {
@@ -156,6 +156,36 @@ class Database
     {
         return $this->sql;
     }
+
+
+    public function load($table, $where = null)
+    {
+        if($where === null) $where = "";
+
+        $sql = "SHOW COLUMNS FROM $table";
+
+        $sth = $this->connect()->prepare($sql);
+        $sth->execute();
+        $this->rows = $sth->rowCount();
+        $this->error['load'] = $sth->errorInfo();
+
+        if ($sth->columnCount() > 0) {
+
+            $row = new DbRow($table);
+            $this->result = $sth->fetchAll(PDO::FETCH_FUNC, function() use ($row){
+                $arg = func_get_args();
+
+                echo '<br>private $'.$arg[0].'; //'.$arg[1].', '.$arg[2].', '.$arg[3].', '.$arg[4].', '.$arg[5];
+                $row->{$arg[0]} = null;
+                $row->setParamData($arg[0], ['type'=>$arg[1],'null'=>($arg[2]=='NO'?false:true),'key'=>$arg[3], 'default'=>$arg[4],'arg'=>$arg['5']]);
+                
+            });
+
+            return $row;
+        }
+
+        return false;
+    }
 }
 
 /**
@@ -165,17 +195,12 @@ class Database
  * @package  Data
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     http://dbrasil.tk/devbr
+ * @link     Author contacts <http://billrocha.tk>
  */
 class Row
 {
-    private $__columns = [];
-    private $__rowParms = ['table'=>null,
-                           'where'=>null,
-                           'sql'=>null,
-                           'parms'=>null,
-                           'id'=>null
-                          ];
+    private $___query = '';
+    private $___param = [];
 
     /**
      * Constructor
@@ -183,38 +208,11 @@ class Row
      * @param string $sql   [description]
      * @param array  $parms [description]
      */
-    function __construct($sql, $parms)
+    function __construct($sql, $param)
     {
-        $this->__rowParms['sql'] = $sql;
-        $this->__rowParms['parms'] = $parms;
-
-        foreach ($this as $n => $v) {
-            if ($n == '__rowParms' || $n == '__columns') {
-                continue;
-            }
-            $this->__columns[$n] = $v;
-            unset($this->{$n});
-        }
+        $this->___query = $sql;
+        $this->___param = $param;
     }
-
-
-    /**
-     * Save data
-     *
-     * @return bool Salva os dados no banco de dados [insert/update]
-     */
-    function save()
-    {
-        //if($this->id == null) //INSERT INTO
-        //else //UPDATE
-
-        /* ex.: INSERT INTO ($this->__table) SET ($this->$key) = ($this->$value)
-         *      UPDATE FROM ($this->__table) VALUES(($this->$key) = ($this->$value)) WHARE ($this->__where)
-         *
-         *      in foreach: bypass $__table and $__whare !!
-         */
-    }
-
 
     /**
      * Get parameter value
@@ -223,45 +221,24 @@ class Row
      *
      * @return bool|array    False or array data
      */
-    function get($parm = false)
+    function get($field = false)
     {
-        if (isset($this->__columns[$parm])) {
-            return $this->__columns[$parm];
-        }
-        return false;
+        return isset($this->$field) ?$this->$field : false;
     }
 
-    /**
-     * First row
-     *
-     * @return array [description]
-     */
-    function first()
-    {
-        return reset($this->__columns);
-    }
-
-    /**
-     * Next row
-     *
-     * @return array [description]
-     */
-    function next()
-    {
-        return next($this->__columns);
-    }
-
-    /**
+ 
+     /**
      * Get all data row
      *
      * @return array return all data
      */
     function getAll()
     {
-        foreach ($this->__columns as $k => $v) {
-            $a[$k] = $v;
+        foreach ($this as $key => $value) {
+            if($key == '___query' || $key == '___param') continue;
+            $result[$key] = $value;
         }
-        return $a;
+        return $result;
     }
 
     /**
@@ -272,17 +249,222 @@ class Row
      *
      * @return boolean
      */
-    function set($parm, $value = null)
+    function set($field, $value = null)
     {
-        if (is_array($parm)) {
-            foreach ($parm as $k => $v) {
-                $this->__columns[$k] = $v;
+        if (is_array($field)) {
+            foreach ($field as $key => $value) {
+                if(isset($this->$key)) $this->$key = $value;
             }
             return $this;
-        } elseif (isset($this->__columns[$parm])) {
-            $this->__columns[$parm] = $value;
+        } elseif (isset($this->$field)) {
+            $this->$field = $value;
             return $this;
         } else {
+            return false;
+        }
+    }
+}
+
+
+/**
+ * New Row for Model builder
+ *
+ * @category Database
+ * @package  Data
+ * @author   Bill Rocha <prbr@ymail.com>
+ * @license  <https://opensource.org/licenses/MIT> MIT
+ * @link     Author contacts <http://billrocha.tk>
+ */
+class DbRow
+{
+    public $id = null;
+    private $___where = '';
+    private $___table = '';
+    private $___param = [];
+    private $___error = '';
+
+
+    function __construct($table = null)
+    {
+        $this->___table = $table;
+    }
+
+    public function getParamData($name)
+    {
+        return isset($this->___param[$name]) ? $this->___param[$name] : false;
+    }
+
+    public function setParamData($name, $data)
+    {
+        $this->___param[$name] = $data;
+        return $this;
+    }
+
+    public function get($field)
+    {
+        if(isset($this->$field)) return $this->$field;
+        return false;
+    }
+
+    public function set($field, $value)
+    {
+        $this->$field = $value;
+        return $this; 
+    }
+
+    public function where($where = '')
+    {
+        $this->$___where = $where;
+        return $this;
+    }
+
+    // Salva os dados corrntes no banco - insert|update
+    public function save($id = false)
+    {
+        if($id !== false) $this->id = 0 + $id;
+
+        $action = $this->id === null ? 'insert' :'update';        
+        return $this->doSave($action);
+    }
+
+    // Softdelete (default: muda o campo status para 3)
+    // ou apaga o registro corrente do banco de dados.
+    public function delete($soft = true)
+    {
+        $ret = $this->doDelete($soft, 3);
+        if($soft === false) $this->clear();
+        return $ret;
+    }
+
+    // UnDelete o registro corrente (muda o campo status para 1)
+    public function unDelete()
+    {
+        return $this->doDelete(true, 1);
+    }
+
+
+    //Carrega os dados para o indice $ID
+    public function find($id, $status = null)
+    {
+        $sql = 'SELECT * FROM '.$this->___table.' WHERE id=:id '.($status !== null ? 'AND status='.(0+$status) : '').' '.$this->___where;
+
+        $db = new DataBase;
+        $result = $db->query($sql, [':id'=>$id]);
+
+        if(isset($result[0])){
+            foreach($this as $key=>$value){
+                if($key == '___where' || $key == '___table' || $key == '___param' || $key == '___error') continue;
+                $this->$key = $result[0]->get($key);
+            }
+        } else {
+            $this->___error = "Can't find index $id in ".$this->___table;
+            return false;
+        }
+
+        return $this;
+    }
+
+    // PEga todos os registros e retorna uma coleção dessa classe...
+    // TODO . . . provavelmente será passada para um MODEL base
+    public function findAll($where = null)
+    {
+        //TODO construir ...
+        echo 'TODO: a construir...';
+    }
+
+
+    // ---------------------- privates ----------------------    
+
+    //Apaga todos os dados menos o nome da tabela
+    private function clear()
+    {
+        foreach($this as $key=>$value){
+            if($key == '___table') continue;
+            $this->$key = null;
+        }
+        return $this;
+    }
+
+    private function doDelete($soft, $status = 3)
+    {
+        $sql = $soft === false 
+                ? 'DELETE FROM '.$this->___table.' WHERE id='.$this->id.' '.$this->___where
+                : 'UPDATE '.$this->___table.' SET status='.$status.' WHERE id='.$this->id.' '.$this->___where;
+
+        echo '<br>
+        Sql: '.$sql.'
+
+        ';
+
+        $db = new Database;
+        $db->query($sql);
+
+        $this->status = 3;
+        return $db->getRows();
+    }
+
+    private function getParams()
+    {
+        $set = 'SET ';
+        foreach($this as $key=>$value){
+            if($key == '___where' || $key == '___table' || $key == '___param' || $key == '___error') continue;
+
+            $set .= '`'.$key.'`=:'.$key.',';
+            $pet[':'.$key] = $value;
+        }
+        $set = substr($set, 0, -1);
+        return ['set'=>$set, 'param'=>$pet];
+    }
+
+
+    private function doSave($action = 'insert')
+    {
+        //mount SETs string
+        $set = ' SET ';
+        foreach($this as $key=>$value){
+            if($key == 'id' || $key == '___where' || $key == '___table' || $key == '___param' || $key == '___error') continue;
+            if($action == 'update' && trim($this->___param[$key]['key']) !== '') continue;
+            if($this->___param[$key]['type'] == 'timestamp' && trim($value) =='') continue;
+            $set .= '`'.$key.'`=:'.$key.',';
+        }
+        $set = substr($set, 0, -1).' ';
+
+        //set by "action" (insert|update)
+        if($action == 'insert'){
+            $sql = "SELECT AUTO_INCREMENT as id FROM information_schema.tables WHERE  table_name='".$this->___table."';";
+            $sql .= 'INSERT INTO '.$this->___table.' '.$set.' '.$this->___where; 
+        } else {
+            $this->___where = ' WHERE `id`='.$this->id;
+            $sql = 'UPDATE '.$this->___table.$set.$this->___where;
+        }
+
+        //Prepare ...
+        $db = new Database;
+        $sth = $db->connect()->prepare($sql);
+
+        //set values
+        foreach($this as $key=>$value){
+            if($key == 'id' || $key == '___where' || $key == '___table' || $key == '___param' || $key == '___error') continue;
+            if($action == 'update' && trim($this->___param[$key]['key']) !== '') continue;
+
+            $type = (substr($this->___param[$key]['type'], 0, 3) == 'int') ? PDO::PARAM_INT : PDO::PARAM_STR;
+            if($this->___param[$key]['type'] == 'timestamp' && trim($value) =='') continue;
+            $sth->bindValue(':'.$key, $value, $type);
+        }
+
+        //executing
+        $sth->execute();
+
+        if($action == 'update') return $this;
+
+        //INSERT, ONLY
+        $result = $sth->fetch();
+
+        if(isset($result['id'])){
+            $this->id = $result['id'];
+            return $this;
+        } else {
+            $this->___error = 'Error in '.$action.' ... ';
             return false;
         }
     }
