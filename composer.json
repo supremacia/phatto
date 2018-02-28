@@ -21,7 +21,7 @@
 	"require": {
 
 	},
-    	"scripts": {
-        	"run":	["php index.php"]
-    	}
+    "scripts": {
+       	"run":	["php boot.php"]
+    }
 }
