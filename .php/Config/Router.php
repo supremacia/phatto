@@ -35,6 +35,7 @@ class Router
 
         //Defaults routers
         $router->respond('get', '/', 'Phatto/Controller::home')
+               ->respond('get', '/teste', 'Lib/Html', 'show', 'teste')
 
               /* Yours routes here
 

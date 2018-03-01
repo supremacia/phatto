@@ -1,0 +1,76 @@
+*, *:before, *:after {
+  outline:none
+}
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+main {
+    flex: 1 0 auto;
+}
+footer a,
+header a {
+    color: #c1e8e5;
+}
+footer, header {
+    background: #004455;
+    color: #FFF;
+}
+footer{
+    color: #8aaba8;
+}
+img {
+    width: 100%;
+}
+sup {
+    font-size: .6rem;
+}
+.material-icons {
+    vertical-align: middle
+}
+.side-nav {
+    background-color: rgba(0, 43, 53, 0.95);
+}
+.side-nav * {
+    color: #ffffff !important;
+}
+#menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    background-color: rgba(0,0,0,.2);
+    border-radius:  50%;
+}
+#menu i{
+    padding: 20px;
+    border-radius: 50%;
+}
+.collapsible {
+    border:  none;
+    margin: 0 -1.3rem;
+    box-shadow:  none;
+    clear: both;
+}
+.collapsible-body {
+    max-height: 500px;
+    overflow-y: auto;
+    background: #c1e8e5;
+}
+.side-nav .collapsible-body, 
+.side-nav.fixed .collapsible-body {
+    color: #468;
+    padding: 0 20px;
+}
+.collapsible-header{
+    font-weight: 500;    
+    cursor: pointer;
+}
+.collapsible-header i{
+    color: #d22025;
+}
+#slide-out li:first-child img {
+    width: 80%;
+    margin: 20px 10%;
+}

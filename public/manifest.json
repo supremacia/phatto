@@ -1,0 +1,22 @@
+{
+    "name": "PHAtto",
+    "short_name": "PHAtto - atto boot application",
+    "icons": [
+        {
+            "src": "/img/favicon/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/img/favicon/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#004455",
+    "background_color": "#004455",
+    "display": "fullscreen",
+    "start_url": "/",
+    "orientation": "portrait",
+    "gcm_sender_id": "103953800507"
+}

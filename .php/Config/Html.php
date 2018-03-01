@@ -50,7 +50,7 @@ class Html
     {
         $this->pathWww  = defined('_WWWPATH')   ? _WWWPATH  : dirname(dirname(dirname(__DIR__)));
         $this->pathHtml = defined('_HTMLPATH')  ? _HTMLPATH : __DIR__.'/Html';
-        $this->mode     = defined('_APPMOD')    ? _APPMOD   : 'dev'; 
+        $this->mode     = defined('_APPMOD')    ? _APPMOD   : 'dev';
         
         $this->pathHtmlCache = $this->pathHtml.'/cache/';
         $this->pathStyle = $this->pathWww.'/css/';

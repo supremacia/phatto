@@ -50,6 +50,8 @@ class Html
     private $nTag =             true;
 
     static private $values =    [];
+    private static $node =      null;
+
     private $jsvalues =         [];
     private $block =            [];
     private $content =          '';
@@ -66,12 +68,11 @@ class Html
         $cached = null,
         $mode = null
     ) {
-    
-        if (is_array($config)) {
+        if (is_array($config) && isset($config['pathHtml'])) {
             foreach ($config as $k => $v) {
                 $this->{$k} = $v;
             }
-        } elseif (method_exists('\Config\Html', 'getParams')) {
+        } elseif (method_exists('Config\Html', 'getParams')) {
             foreach ((new \Config\Html)->getParams() as $k => $v) {
                 $this->{$k} = $v;
             }
@@ -89,10 +90,10 @@ class Html
             $this->url = defined('_URL')  ? _URL  : './';
         }
 
-            //Acertando o final com barras
-            $this->url = rtrim($this->url, ' /').'/';
-            $this->pathHtml = rtrim($this->pathHtml, ' /').'/';
-            $this->pathWww = rtrim($this->pathWww, ' /').'/';
+        //Acertando o final com barras
+        $this->url = rtrim($this->url, ' /').'/';
+        $this->pathHtml = rtrim($this->pathHtml, ' /').'/';
+        $this->pathWww = rtrim($this->pathWww, ' /').'/';
 
         if ($this->pathHtmlCache === null) {
             $this->pathHtmlCache = $this->pathHtml.'cache/';
@@ -124,10 +125,30 @@ class Html
             $this->mode =   $mode;
         }
 
-            //Acertando o final com barras
-            $this->pathHtmlCache = rtrim($this->pathHtmlCache, ' /').'/';
-            $this->pathScript = rtrim($this->pathScript, ' /').'/';
-            $this->pathStyle = rtrim($this->pathStyle, ' /').'/';
+        //Acertando o final com barras
+        $this->pathHtmlCache = rtrim($this->pathHtmlCache, ' /').'/';
+        $this->pathScript = rtrim($this->pathScript, ' /').'/';
+        $this->pathStyle = rtrim($this->pathStyle, ' /').'/';
+
+        //Saving this object in static node (for future static access)
+        if (!is_object(static::$node)) {
+            static::$node = $this;
+        }
+    }
+
+
+    /**
+     * Singleton instance
+     *
+     */
+    public static function this()
+    {
+        if (is_object(static::$node)) {
+            return static::$node;
+        }
+        //else...
+        list($config, $name, $cached, $mode) = array_merge(func_get_args(), [null, null, null, null]);
+        return static::$node = new static($config, $name, $cached, $mode);
     }
 
     //Html template processor: Blade
@@ -152,25 +173,29 @@ class Html
 
     public function setPathWww(string $val)
     {
-        $this->pathWww = trim($val, '\\/ ').'/';;
+        $this->pathWww = trim($val, '\\/ ').'/';
+        ;
         return $this;
     }
 
     public function setPathScript(string $val)
     {
-        $this->pathScript = trim($val, '\\/ ').'/';;
+        $this->pathScript = trim($val, '\\/ ').'/';
+        ;
         return $this;
     }
 
     public function setPathStyle(string $val)
     {
-        $this->pathStyle = trim($val, '\\/ ').'/';;
+        $this->pathStyle = trim($val, '\\/ ').'/';
+        ;
         return $this;
     }
 
     public function setPathCache(string $val)
     {
-        $this->pathHtmlCache = trim($val, '\\/ ').'/';;
+        $this->pathHtmlCache = trim($val, '\\/ ').'/';
+        ;
         return $this;
     }
 
@@ -213,7 +238,7 @@ class Html
             }
             $this->header = $v;
         }
-            return $this;
+        return $this;
     }
 
     public function footer($v = null)
@@ -230,7 +255,7 @@ class Html
             }
             $this->footer = $v;
         }
-            return $this;
+        return $this;
     }
 
     //Insert additional contents (ex.: data base), before produce
@@ -247,40 +272,6 @@ class Html
     }
 
 
-    public function sendPage($page = 'body', $data = null, $jsvar = null, $styles = null, $scripts = null, $htmlPatch = null, $header = null, $footer = null)
-    {
-        if($page === null || $page === false) $page = 'body';
-        $this->body($page)
-         ->setName($page.md5(time()))
-         ->val($data)
-         ->jsvar($jsvar);
-
-        if ($htmlPatch !== null) {
-            $this->setPathHtml($htmlPatch);
-        }
-
-        if ($header  !== null) {
-            $this->header($this->header);
-        }
-        
-        if ($footer  !== null) {
-            $this->footer($this->footer);
-        }
-             
-        if ($scripts !== null) {
-            $this->insertScripts($scripts);
-        }
-
-        if ($styles  !== null) {
-            $this->insertStyles($styles);
-        }
-
-        $this->render()
-             ->send();
-    }
-
-
-
     public function render($html = null, $val = null)
     {
         if ($html !== null) {
@@ -294,7 +285,7 @@ class Html
 
 
         if ($this->cached &&
-            file_exists($this->pathHtmlCache.$this->name.'_cache.html')) {
+        file_exists($this->pathHtmlCache.$this->name.'_cache.html')) {
             return $this;
         }
 
@@ -351,53 +342,6 @@ class Html
         $this->scripts = $list;
         return $this;
     }
-
-    /* Força a compressão dos arquivos CSS e JS
-     *      -- para facilitar durante o desenvolvimento e testes.
-     */
-    public function forceCompress($b = true)
-    {
-        $this->forceCompress = $b;
-        return $this;
-    }
-
-    private function assetsComp()
-    {
-        //CSS STYLES
-        if (file_exists($this->pathStyle.$this->name.'_all.css') && !$this->forceCompress) {
-            $content = file_get_contents($this->pathStyle.$this->name.'_all.css');
-        } else {
-            $content = '';
-            foreach ($this->styles as $file) {
-                $content .= exec('java -jar '.__DIR__.'/min/yc.jar "'.$this->pathStyle.$file.'.css"');
-            }
-            file_put_contents($this->pathStyle.$this->name.'_all.css', $content);
-            $content = exec('java -jar '.__DIR__.'/min/yc.jar "'.$this->pathStyle.$this->name.'_all.css"');
-            file_put_contents($this->pathStyle.$this->name.'_all.css', $content);
-        }
-            $this->val('style', '<style id="stylesheet_base">'.$content.'</style>');
-
-            //JAVASCRIPTS
-        if (file_exists($this->pathScript.$this->name.'_all.js') && !$this->forceCompress) {
-            $content = file_get_contents($this->pathScript.$this->name.'_all.js');
-        } else {
-            $content = ';';
-            foreach ($this->scripts as $file) {
-                $content .= exec('java -jar '.__DIR__.'/min/yc.jar "'.$this->pathScript.$file.'.js"');
-            }
-                file_put_contents($this->pathScript.$this->name.'_all.js', $content);
-                $content = exec('java -jar '.__DIR__.'/min/yc.jar "'.$this->pathScript.$this->name.'_all.js"');
-                file_put_contents($this->pathScript.$this->name.'_all.js', $content);
-        }
-        
-            $s = '<script id="javascript_base">var _URL=\''.$this->url.'\'';
-        foreach ($this->jsvalues as $n => $v) {
-            $s .= ','.$n.'='.(is_string($v) ? '\''.str_replace("'", '"', $v).'\'' : $v);
-        }
-            $s .= ';';
-            $this->val('script', $s.$content.'</script>');
-    }
-
 
     /* Produção dos links ou arquivos compactados.
      * para Style e Javascript
@@ -466,19 +410,6 @@ class Html
         $this->send();
     }
 
-    /** Teste
-     * @todo testando send with CACHE in PHP!
-     */
-    protected function sendWithCach()
-    {
-        $cache = $this->pathHtmlCache.$this->name.'_cache.html';
-        if (!file_exists($cache)) {
-            file_put_contents($cache, $this->content);
-        }
-        include $cache;
-        exit();
-    }
-
     //Insere o conteúdo processado Html
     protected function setContent($content)
     {
@@ -493,20 +424,22 @@ class Html
     }
 
     //Pega uma variável ou todas
-    protected function getVar($var = null)
+    public function getVar($var = null)
     {
         //return ($var == null) ? $this->values : (isset($this->values[$var]) ? $this->values[$var] : false);
         $var = trim($var);
         return ($var == null) ? static::$values : (isset(static::$values[$var]) ? static::$values[$var] : false);
     }
 
+
+    //STATIC GET VAR
     protected static function get($var = null)
     {
         return ($var == null) ? static::$values : (isset(static::$values[$var]) ? static::$values[$var] : false);
     }
 
     //Pega o conteúdo de um block
-    protected function getBlock($name = null)
+    public function getBlock($name = null)
     {
         return ($name == null) ? $this->block : (isset($this->block[$name]) ? $this->block[$name] : false);
     }
@@ -514,7 +447,7 @@ class Html
     //Registra uma variável para o Layout
     public function value($name, $value = null)
     {
-        return $this->val($name, $value = null);
+        return $this->val($name, $value);
     }
     public function val($name, $value = null)
     {
@@ -559,6 +492,9 @@ class Html
                 $vartemp = $this->url;
             } elseif (method_exists($this, '_' . $ret['-tipo-'])) {
                 $vartemp = $this->{'_' . $ret['-tipo-']}($ret);
+            } elseif (class_exists('\Lib\NTag\\NT'.ucfirst($ret['-tipo-']))) {
+                $class = '\Lib\NTag\\NT'.ucfirst($ret['-tipo-']);
+                $vartemp = (new $class)->make($ret);
             }
 
             //Incluindo o bloco gerado pelas ©NeosTags
@@ -570,7 +506,7 @@ class Html
         }//end while
 
         //returns the processed contents
-        return $this->getContent();
+            return $this->getContent();
     }
 
     /**
@@ -638,7 +574,7 @@ class Html
             $a['-tipo-'] = 'var';
 
             if (strpos($m['type'], ':') !== false) {
-                $a['-tipo-'] = str_replace (':', '', $m['type']);
+                $a['-tipo-'] = str_replace(':', '', $m['type']);
             } else {
                 $a['var'] = $m['type'];
             }
@@ -673,7 +609,9 @@ class Html
                     $out = rtrim($out1, ',.:');
                     $i += (strlen($out) - strlen($out1));
 
-                    if ($this->getVar($out)) {
+                    if ($out == 'url') {
+                        $out = $this->url;
+                    } elseif ($this->getVar($out)) {
                         $out = $this->getVar($out);
                     } else {
                         restore_error_handler();
@@ -685,6 +623,7 @@ class Html
                             $out = '';
                         }
                     }
+                    
                     $o .= $out; //exit($o);
                     $ini = '';
                     if ($arquivo[$i] != ' ') {
@@ -725,91 +664,10 @@ class Html
         return $this->setAttributes($ret);
     }
 
-    /**
-     * _list :: Create ul html tag
-     * Parameter "tag" is the list type indicator (ex.: <s:_list  . . . tag="li" />)
-     *
-     * @param array $ret ©NeosTag data array
-     * @return string|html
-    */
-    private function _list($ret)
-    {
-        if (!isset($ret['var'])) {
-            return '';
-        }
-        $v = $this->getVar($ret['var']);
-        if (!$v || !is_array($v)) {
-            return '';
-        }
-
-        $tag = isset($ret['tag']) ? $ret['tag'] : 'li';
-        $ret = $this->clearData($ret);
-
-        //Tag UL and params. (class, id, etc)
-        $o = '<ul';
-        foreach ($ret as $k => $val) {
-            $o .= ' '.trim($k).'="'.trim($val).'"';
-        }
-        $o .= '>';
-        //create list
-        foreach ($v as $k => $val) {
-            $o .= '<'.$tag.'>'.$val.'</'.$tag.'>';
-        }
-        return $o . '</ul>';
-    }
-
-    /**
-     * _block :: insert content block
-     * Parameter "name" is the name of block;
-     *
-     * @param array $ret ©NeosTag data array
-     * @return string|html
-    */
-    private function _block($ret)
-    {
-        if (!isset($ret['name'])) {
-            return '';
-        }
-        $ret['-content-'] .= $this->getBlock(trim($ret['name']));
-        if ($ret['-content-'] == false) {
-            return '';
-        }
-
-        unset($ret['name']);
-        return $this->setAttributes($ret);
-    }
-
-    /**
-     * Create <select> HTML tag
-     * configuration:
-     *       $select['data'] = ['value'=>'display', 'val....];
-     *       $select['default'] = '..value...';
-     *       $LibDocHtml->val('varName',$select);
-     *
-     *       ---- in HTML file
-     *       <x::select data="varName" ...some attributes />
-     *
-     * @param array $ret ©NeosTag data array
-     * @return string|html
-    */
-    private function _select($ret)
-    {
-        $var = $this->getVar($ret['data']);
-        if (!$var) {
-            return false;
-        }
-
-        $o = '';
-        foreach ($var['data'] as $k => $v) {
-            $o .= '<option value="'.$k.'"'.($var['default'] == $k ? ' selected':'').'>'.$v.'</option>';
-        }
-        $ret['-content-'] = $o;
-        $ret['tag'] = 'select';
-        return $this->setAttributes($ret);
-    }
+ 
 
 
-    private function setAttributes($a)
+    public function setAttributes($a)
     {
         $content = isset($a['-content-']) ? $a['-content-'] : '';
         $tag = isset($a['tag']) ? $a['tag'] : '';
@@ -849,16 +707,18 @@ class Html
     */
     public function clearData($ret)
     {
-        unset($ret['var'],
-              $ret['-inicio-'],
-              $ret['-tamanho-'],
-              $ret['-final-'],
-              $ret['-tipo-'],
-              $ret['-content-'],
-              $ret['tag'],
-              $ret['data']);
+        unset(
+            $ret['var'],
+            $ret['-inicio-'],
+            $ret['-tamanho-'],
+            $ret['-final-'],
+            $ret['-tipo-'],
+            $ret['-content-'],
+            $ret['tag'],
+            $ret['data']
+        );
         return $ret;
-    }    
+    }
 
     // Checa um diretório e cria se não existe - retorna false se não conseguir ou não existir
     /**
@@ -885,5 +745,12 @@ class Html
         }
         
         return true;
+    }
+
+
+
+    function show($rqst, $param, $page = 'body')
+    {
+        $this->sendPage($page);
     }
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Lib\Router
  * PHP version 7
@@ -31,6 +31,7 @@ class Router
     private $request = false;
     private $routers = [];
     private $params = [];
+    private $args = []; //extra params in 'respond'
     private $all = [];
     private $method = 'GET'; //CLI, GET, POST, DELETE, PUT, PATCH, OPTIONS, HEAD
     private $separator = '::';
@@ -106,7 +107,7 @@ class Router
     
     function setDefaultController($v)
     {
-        $this->defaultController = trim( str_replace('/', '\\', $v), '\\/ ');
+        $this->defaultController = trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
     
@@ -118,14 +119,14 @@ class Router
     
     function setNamespacePrefix($v)
     {
-        $this->namespacePrefix = $v === '' ? '' : '\\'.trim( str_replace('/', '\\', $v), '\\/ ');
+        $this->namespacePrefix = $v === '' ? '' : '\\'.trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
 
     //CLI
     function setDefaultCliController($v)
     {
-        $this->defaultCliController = trim( str_replace('/', '\\', $v), '\\/ ');
+        $this->defaultCliController = trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
     
@@ -137,7 +138,7 @@ class Router
     
     function setNamespaceCliPrefix($v)
     {
-        $this->namespaceCliPrefix = $v === '' ? '' : '\\'.trim( str_replace('/', '\\', $v), '\\/ ');
+        $this->namespaceCliPrefix = $v === '' ? '' : '\\'.trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
     
@@ -149,7 +150,7 @@ class Router
         $request = null,
         $url = null
     ) {
-        if ($autorun === false){
+        if ($autorun === false) {
             $this->autorun = false;
         }
         
@@ -206,13 +207,13 @@ class Router
      *
      */
     function run()
-    {  
+    {
         //Resolve request
-        $this->resolve();  
+        $this->resolve();
         
         //If is a CALLBACK...
         if (is_object($this->controller)) {
-            exit(call_user_func_array($this->controller, [$this->request, $this->params]));
+            exit(call_user_func_array($this->controller, [$this->request, $this->params, $this->args]));
         }
         if ($this->controller === null) {
             $this->controller = $this->method == 'CLI' ? $this->defaultCliController : $this->defaultController;
@@ -227,10 +228,10 @@ class Router
         //Save the controller...
         $this->controller = $ctrl;
         
-        //Check whether to automatically run the Controller 
+        //Check whether to automatically run the Controller
         //      or return this object
-        if(!$this->autorun) {
-            return $this;            
+        if (!$this->autorun) {
+            return $this;
         }
         
         //Instantiate the controller
@@ -238,28 +239,30 @@ class Router
             static::$ctrl = new $ctrl($this->params, $this->request);
             //IN CLI mode finish in this point: Cli\Main::__construct return to CMD.
         } else {
-            if($this->method != 'CLI') {
+            if ($this->method != 'CLI') {
                 header("HTTP/1.0 404 Not Found");
                 exit('Page not Found!');
             }
-            exit("\nController not found!");            
-        } 
+            exit("\nController not found!");
+        }
         
         //Seeking for the METHOD...
         if (!method_exists(static::$ctrl, $this->action)) {
             $this->action = $this->method == 'CLI' ? $this->defaultCliAction : $this->defaultAction;
-            if(!method_exists(static::$ctrl, $this->action)){
-                if($this->method != 'CLI') {
+            if (!method_exists(static::$ctrl, $this->action)) {
+                if ($this->method != 'CLI') {
                     header("HTTP/1.0 404 Not Found");
                     exit('Page not Found!');
                 }
-                exit();      
+                exit();
             }
         }
         
         //Call action
-        return call_user_func_array([static::$ctrl, $this->action],
-                                    [$this->request, $this->params]);
+        return call_user_func_array(
+            [static::$ctrl, $this->action],
+            [$this->request, $this->params, $this->args]
+        );
     }
 
     /**
@@ -272,20 +275,21 @@ class Router
             $route = $this->searchCliRoute();
         } else {
         //first: serach in ALL
-            $route = $this->searchRouter($this->all);
+            $route = $this->searchRoute($this->all);
         //now: search for access method
             if ($route === false && isset($this->routers[$this->method])) {
-                $route = $this->searchRouter($this->routers[$this->method]);
+                $route = $this->searchRoute($this->routers[$this->method]);
             }
         }
         //not match...
         if ($route === false) {
-            $route['controller'] = $route['action'] = $route['params'] = $route['request'] = null;
+            $route['controller'] = $route['action'] = $route['params'] = $route['args'] = $route['request'] = null;
         }
         //set params
         $this->controller = $route['controller'];
         $this->action = $route['action'];
         $this->params = $route['params'];
+        $this->args = $route['args'];
         //out with decoded router OR all null
         return $route;
     }
@@ -297,7 +301,8 @@ class Router
         $method = 'all',
         $request = '',
         $controller = null,
-        $action = null
+        $action = null,
+        $args = null
     ) {
     
         $method = strtoupper(trim($method));
@@ -308,10 +313,10 @@ class Router
             $action = isset($a[1]) ? $a[1] : null;
         }
         if ($method == 'ALL') {
-            $this->all[] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action];
+            $this->all[] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action, 'args' => $args];
         } else {
             foreach (explode('|', $method) as $mtd) {
-                $this->routers[$mtd][] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action];
+                $this->routers[$mtd][] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action, 'args' => $args];
             }
         }
             return $this;
@@ -344,13 +349,13 @@ class Router
         }
         
         //URL & REQST Constants:
-        if($this->request === false) {
+        if ($this->request === false) {
             $this->request = urldecode(isset($_SERVER['REQUEST_URI']) ? urldecode(trim(str_replace($this->base, '', trim($_SERVER['REQUEST_URI'])), ' /')) : '');
         }
         defined('_RQST') || define('_RQST', $this->request);
 
-        if($this->url === false) {
-            $this->url = isset($_SERVER['SERVER_NAME']) ? $this->http . $_SERVER['SERVER_NAME'] . $this->base . '/' : '';
+        if ($this->url === false) {
+            $this->url = isset($_SERVER['SERVER_NAME']) ? $this->http . $_SERVER['SERVER_NAME'] . $this->base : '';
         }
         defined('_URL') || define('_URL', $this->url);
         
@@ -388,7 +393,7 @@ class Router
         $request = $this->request;
         $this->request = implode(' ', $this->request);
     
-        $route = ['request'=>$request, 'controller'=>false, 'action'=>null, 'params'=>null];
+        $route = ['request'=>$request, 'controller'=>false, 'action'=>null, 'params'=>null, 'args'=>null];
 
         if (isset($request[0])) {
             $tmp = explode($this->separator, $request[0]);
@@ -410,18 +415,20 @@ class Router
 
 
     /**
-     * Search for valide router
+     * Search for valide route
      *
      * @params
      */
-    private function searchRouter($routes)
+    private function searchRoute($routes)
     {
         foreach ($routes as $route) {
             if ($route['controller'] === null
-              || !preg_match_all('#^' . $route['request'] . '$#',
-                    $this->request,
-                    $matches,
-                    PREG_SET_ORDER)
+              || !preg_match_all(
+                  '#^' . $route['request'] . '$#',
+                  $this->request,
+                  $matches,
+                  PREG_SET_ORDER
+              )
                   ) {
                 continue;
             }
