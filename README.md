@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/supremacia/phatto/master/public/img/favicon/android-chrome-512x512.png" width="80px"/>
 
-# PHatto 
-PHatto is an atto* PHP server.
+# PHATTO
+PHATTO<sup>&copy;</sup> is an atto* PHP server.
 
 ## Install
 
