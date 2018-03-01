@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/supremacia/phatto/master/public/img/favicon/android-chrome-512x512.png" width="80px"/>
 
 # PHAtto 
-It's a atto* boot for PHP server applications.
+PHAtto is an atto* PHP server.
 
 ## Install
 
@@ -21,3 +21,5 @@ Open ```http://localhost``` in your browser.
 The intent is to provide the basis for a PWA application (such as an app, with notification (push), cache, etc.)*
 
 ---> More information **coming soon!**
+
+<sup> **Atto** (symbol **a**) is a unit prefix in the metric system denoting a factor of 10−18... (https://en.wikipedia.org/wiki/Atto-)</sup>
