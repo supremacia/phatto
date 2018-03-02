@@ -152,14 +152,14 @@ class Html
     }
 
     //Html template processor: Blade
-    public function setBlade(bool $blade = null)
+    public function setBlade(bool $blade = true)
     {
         $this->blade = $blade;
         return $this;
     }
 
     //Html template processor: NeosTag
-    public function setNtag(bool $ntag = null)
+    public function setNtag(bool $ntag = true)
     {
         $this->nTag = $ntag;
         return $this;
@@ -167,34 +167,34 @@ class Html
 
     public function setPathHtml($val)
     {
-        $this->pathHtml = trim($val, '\\/ ').'/';
+        $this->pathHtml = rtrim($val, '\\/ ').'/';
         return $this;
     }
 
     public function setPathWww(string $val)
     {
-        $this->pathWww = trim($val, '\\/ ').'/';
+        $this->pathWww = rtrim($val, '\\/ ').'/';
         ;
         return $this;
     }
 
     public function setPathScript(string $val)
     {
-        $this->pathScript = trim($val, '\\/ ').'/';
+        $this->pathScript = rtrim($val, '\\/ ').'/';
         ;
         return $this;
     }
 
     public function setPathStyle(string $val)
     {
-        $this->pathStyle = trim($val, '\\/ ').'/';
+        $this->pathStyle = rtrim($val, '\\/ ').'/';
         ;
         return $this;
     }
 
     public function setPathCache(string $val)
     {
-        $this->pathHtmlCache = trim($val, '\\/ ').'/';
+        $this->pathHtmlCache = rtrim($val, '\\/ ').'/';
         ;
         return $this;
     }
@@ -283,16 +283,14 @@ class Html
             $this->val($val);
         }
 
-
-        if ($this->cached &&
-        file_exists($this->pathHtmlCache.$this->name.'_cache.html')) {
+        if ($this->cached && file_exists($this->pathHtmlCache.$this->name.'_cache.html')) {
             return $this;
         }
 
         $this->content = file_exists($this->header) ? file_get_contents($this->header) : '';
 
         foreach ($this->body as $b) {
-            @$this->content .= file_get_contents($b);
+            $this->content .= file_get_contents($b);
         }
         $this->content .= file_exists($this->footer) ? file_get_contents($this->footer) : '';
 
@@ -300,7 +298,7 @@ class Html
             $this->assets();
         }
         if ($this->mode == 'pro') {
-            $this->assetsComp();
+            $this->assets();
             $this->setContent(str_replace(["\r","\n","\t",'  '], '', $this->getContent()));
         }
 
@@ -387,8 +385,7 @@ class Html
         header('X-Server: Qzumba/0.1.8.beta');//for safety ...
         header('X-Powered-By: NEOS PHP FRAMEWORK/1.3.0');//for safety ...
 
-        if ($this->cached &&
-        file_exists($this->pathHtmlCache.$this->name.'_cache.html')) {
+        if ($this->cached && file_exists($this->pathHtmlCache.$this->name.'_cache.html')) {
             return $this->sendWithCach();
         } else {
             //$timer = £TIME.' - '.microtime(true).' = '.round((microtime(true)-£TIME)*1000, 2).'ms';

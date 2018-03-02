@@ -1,8 +1,8 @@
 //---------------------------------------------- CACHE -----------------
-const CACHE = 'phatto-0.0.1';
+const CACHE = 'phatto-0.0.2';
 const FILES = [
     '/',
-    '/loja',
+    '/manual',
     '/about',
     '/privacy',
 
