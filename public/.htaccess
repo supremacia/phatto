@@ -4,13 +4,15 @@ AddOutputFilter INCLUDES .html
 
 AddDefaultCharset utf-8
 AddCharset utf-8 .html .css .js .xml .json .rss .atom
-#AddType application/x-httpd-php phar
+AddType application/x-httpd-php phar
 FileETag INode MTime Size
 ServerSignature Off 
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
