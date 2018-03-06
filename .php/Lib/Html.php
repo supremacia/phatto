@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Lib\Html
  * PHP version 7
@@ -26,15 +27,17 @@ class Html
 {
 
     private $name =             '';
-    private $cached =           false;
     private $mode =             'dev'; //pro|dev
+    private $cacheTime =        21600; // 6 hours of life
+    private $cacheFile =        'default.html';
 
     private $pathHtml =         null;
-    private $pathHtmlCache =    null;
+    private $pathCache =    null;
     private $pathWww =          null;
     private $pathStyle =        null;
     private $pathScript =       null;
     private $url =              null;
+    private $request =          null;
 
     //Html parts
     private $header =           null;
@@ -53,19 +56,16 @@ class Html
     private static $node =      null;
 
     private $jsvalues =         [];
-    private $block =            [];
     private $content =          '';
     private $tag =              'x:';
 
 
-    /* Construct of Doc
-     *
-     *
+    /**
+     * Construct of Doc
      */
     public function __construct(
         $config = null,
         $name = null,
-        $cached = null,
         $mode = null
     ) {
         if (is_array($config) && isset($config['pathHtml'])) {
@@ -95,8 +95,8 @@ class Html
         $this->pathHtml = rtrim($this->pathHtml, ' /');
         $this->pathWww = rtrim($this->pathWww, ' /');
 
-        if ($this->pathHtmlCache === null) {
-            $this->pathHtmlCache = $this->pathHtml.'cache';
+        if ($this->pathCache === null) {
+            $this->pathCache = $this->pathHtml.'/cache';
         }
 
         if ($this->pathStyle === null) {
@@ -118,15 +118,13 @@ class Html
         if ($name !== null) {
             $this->name =   $name;
         }
-        if ($cached !== null) {
-            $this->cached = $cached;
-        }
+
         if ($mode !== null) {
             $this->mode =   $mode;
         }
 
         //Acertando o final com barras
-        $this->pathHtmlCache = rtrim($this->pathHtmlCache, ' /');
+        $this->pathCache = rtrim($this->pathCache, ' /');
         $this->pathScript = rtrim($this->pathScript, ' /');
         $this->pathStyle = rtrim($this->pathStyle, ' /');
 
@@ -147,8 +145,8 @@ class Html
             return static::$node;
         }
         //else...
-        list($config, $name, $cached, $mode) = array_merge(func_get_args(), [null, null, null, null]);
-        return static::$node = new static($config, $name, $cached, $mode);
+        list($config, $name, $mode) = array_merge(func_get_args(), [null, null, null]);
+        return static::$node = new static($config, $name, $mode);
     }
 
     //Html template processor: Blade
@@ -194,7 +192,7 @@ class Html
 
     public function setPathCache(string $val)
     {
-        $this->pathHtmlCache = rtrim($val, '\\/ ');
+        $this->pathCache = rtrim($val, '\\/ ');
         ;
         return $this;
     }
@@ -258,18 +256,7 @@ class Html
         return $this;
     }
 
-    //Insert additional contents (ex.: data base), before produce
-    public function insertBlock($tag, $contents)
-    {
-        $this->block[$tag] = $contents;
-        return $this;
-    }
 
-    public function cached(bool $b = null)
-    {
-        $this->cached = $b;
-        return $this;
-    }
 
 
     public function render($html = null, $val = null)
@@ -283,7 +270,16 @@ class Html
             $this->val($val);
         }
 
-        if ($this->cached && file_exists($this->pathHtmlCache.'/'.$this->name.'_cache.html')) {
+
+        //Gerando o NAME da compilação para o cache.
+        $this->cacheFile = $this->name.'_'
+            .md5($this->request)
+            .md5(implode('', $this->body)
+                .implode('', $this->header)
+                .implode('', $this->footer)
+            );
+
+        if (file_exists($this->pathCache.'/'.$this->cacheFile)) {
             return $this;
         }
 
@@ -294,11 +290,7 @@ class Html
         }
         $this->content .= file_exists($this->footer) ? file_get_contents($this->footer) : '';
 
-        if ($this->mode == 'dev') {
-            $this->assets();
-        }
         if ($this->mode == 'pro') {
-            $this->assets();
             $this->setContent(str_replace(["\r","\n","\t",'  '], '', $this->getContent()));
         }
 
@@ -311,16 +303,20 @@ class Html
         }
 
         //Insert cache data
-        if ($this->cached) {
-            self::checkAndOrCreateDir($this->pathHtmlCache, true);
-            file_put_contents($this->pathHtmlCache.'/'.$this->name.'_cache.html', $this->getContent());
-        }
+        self::checkAndOrCreateDir($this->pathCache, true);
 
+        //Delete this cache file at expiration 
+        $expiration = '<?php if(time() > '.(time() + $this->cacheTime).') unlink($this->pathCache.\'/\'.$this->cacheFile);?>';
+        
+        file_put_contents($this->pathCache.'/'.$this->cacheFile, 
+                          $expiration.$this->getContent());
+        
         return $this;
     }
 
-    /* Style list insert
-    */
+    /** 
+     * Style list insert
+     */
     public function insertStyles($list)
     {
         if (!is_array($list)) {
@@ -330,8 +326,9 @@ class Html
         return $this;
     }
 
-    /* Javascript list insert
-    */
+    /**
+     *  Javascript list insert
+     */
     public function insertScripts($list)
     {
         if (!is_array($list)) {
@@ -341,38 +338,9 @@ class Html
         return $this;
     }
 
-    /* Produção dos links ou arquivos compactados.
-     * para Style e Javascript
-     *
-     * Em modo 'dev' gera somente os links;
-     * Em modo 'pro' compacta e obfusca os arquivos e insere diretamente no HTML.
-     */
-    private function assets()
-    {
-        $s = '';
-        foreach ($this->styles as $id => $f) {
-            $tmp = strpos($f, 'http') !== false ? $f : $this->url.'/css/'.$f.'.css';
-            $s .= '<link id="stylesheet_'.$id.'" rel="stylesheet" href="'.$tmp.'">'."\n\t";
-        }
-        $this->val('style', $s);
 
-        $s = '<script id="javascript_base">var _URL=\''.$this->url.'\'';
-
-        foreach ($this->jsvalues as $n => $v) {
-            $s .= ','.$n.'='.(is_string($v) ? '\''.str_replace("'", '"', $v).'\'' : $v);
-        }
-        $s .= ';</script>';
-        
-        foreach ($this->scripts as $id => $f) {
-            $tmp = strpos($f, 'http') !== false ? $f : $this->url.'/js/'.$f.'.js';
-            $s .= "\n\t".'<script id="javascript_'.$id.'" src="'.$tmp.'"></script>';
-        }
-        $this->val('script', $s); //e($this);
-    }
-
-    /* SEND
+    /** SEND
      * Send headers & Output tris content
-     *
      */
     public function send()
     {
@@ -385,42 +353,35 @@ class Html
         header('X-Server: Qzumba/0.1.8.beta');//for safety ...
         header('X-Powered-By: NEOS PHP FRAMEWORK/1.3.0');//for safety ...
 
-        if ($this->cached && file_exists($this->pathHtmlCache.'/'.$this->name.'_cache.html')) {
-            return $this->sendWithCach();
+        if (file_exists($this->pathCache.'/'.$this->cacheFile)) {
+            include $this->pathCache.'/'.$this->cacheFile;
+            exit();
         } else {
             //$timer = £TIME.' - '.microtime(true).' = '.round((microtime(true)-£TIME)*1000, 2).'ms';
             exit(eval('?>'.$this->content));
         }
     }
 
-    /* Send cached version of compilation
-     *
+    /** 
+     * Insere o conteúdo processado Html
      */
-    public function sendCache()
-    {
-        if (!file_exists($this->pathHtmlCache.'/'.$this->name.'_cache.html')) {
-            $this->cached = true;
-            return $this;
-        }
-
-        $this->setContent(file_get_contents($this->pathHtmlCache.'/'.$this->name.'_cache.html'));
-        $this->send();
-    }
-
-    //Insere o conteúdo processado Html
     protected function setContent($content)
     {
         $this->content = $content;
         return $this;
     }
 
-    //Pega o conteúdo processado Html
+    /** 
+     * Pega o conteúdo processado Html
+     */
     protected function getContent()
     {
         return $this->content;
     }
 
-    //Pega uma variável ou todas
+    /** 
+     * Pega uma variável ou todas
+     */
     public function getVar($var = null)
     {
         //return ($var == null) ? $this->values : (isset($this->values[$var]) ? $this->values[$var] : false);
@@ -429,19 +390,23 @@ class Html
     }
 
 
-    //STATIC GET VAR
+    /** 
+     * STATIC GET VAR
+     */
     protected static function get($var = null)
     {
         return ($var == null) ? static::$values : (isset(static::$values[$var]) ? static::$values[$var] : false);
     }
 
-    //Pega o conteúdo de um block
-    public function getBlock($name = null)
+    protected static function getScripts($var = null)
     {
-        return ($name == null) ? $this->block : (isset($this->block[$name]) ? $this->block[$name] : false);
+        return ($var == null) ? static::$scripts : (isset(static::$scripts[$var]) ? static::$scripts[$var] : false);
     }
 
-    //Registra uma variável para o Layout
+
+    /**
+     * Registra uma variável para o Layout
+     */
     public function value($name, $value = null)
     {
         return $this->val($name, $value);
@@ -457,7 +422,9 @@ class Html
         return $this;
     }
 
-    //Registra uma variável para o Javascript
+    /** 
+     * Registra uma variável para o Javascript
+     */
     public function jsvar($name, $value = null)
     {
         if (is_string($name)) {
@@ -483,6 +450,8 @@ class Html
         while ($ret = $this->sTag($content, $ponteiro)) {
             $ponteiro = 0 + $ret['-final-'];
             $vartemp = '';
+
+            //p($ret);
 
             //constant URL
             if ($ret['-tipo-'] == 'var' && $ret['var'] == 'url') {
@@ -593,12 +562,14 @@ class Html
 
         $ret = preg_replace_callback('/@(.*?)[^\d\w\.\(\)\[\]]/', function($cap){
             $e = substr($cap[0], -1);
-            $var = ($cap[1] == 'url') ? $this->url : '<?php echo \Lib\Html::get("'.$cap[1].'")?>';
+            $var = ($cap[1] == 'url') ? $this->url : '<?php echo \\'.__CLASS__.'::get("'.$cap[1].'")?>';
             return $var.($e != ' ' ? $e : '');
         }, $arquivo);
 
         return $this->setContent($ret);
     }
+
+
     /**
      * _var
      * Insert variable data assigned in view
@@ -613,16 +584,47 @@ class Html
         if (!$v) {
             return '';
         }
-        //$ret['-content-'] .= $v;
         $ret['-content-'] .= '<?php echo \\'.__CLASS__.'::get("'.trim($ret['var']).'")?>';
 
-        //List type
-        if (is_array($v)) {
-            return $this->_list($ret);
+        return $this->setAttributes($ret);
+    }
+
+
+    /**
+     * Generate and insert style sheets
+     */
+    private function _style($ret)
+    {
+        $s = '';
+        foreach ($this->styles as $id => $f) {
+            $tmp = strpos($f, 'http') !== false ? $f : $this->url.'/css/'.$f.'.css';
+            $s .= '<link rel="stylesheet" href="'.$tmp.'" id="stylesheet_'.$id.'">'."\n\t";
+        }
+        $ret['-content-'] = $s;
+        return $ret;
+    }
+
+
+    /**
+     * Generate and insert scripts
+     */
+    private function _script($ret)
+    {
+        $s = '<script id="javascript_base">var _URL=\''.$this->url.'\'';
+
+        foreach ($this->jsvalues as $n => $v) {
+            $s .= ','.$n.'='.(is_string($v) ? '\''.str_replace("'", '"', $v).'\'' : $v);
+        }
+        $s .= ';</script>';
+        
+        foreach ($this->scripts as $id => $f) {
+            $tmp = (strpos($f, 'http') !== false || strpos($f, '//') !== false) ? $f : $this->url.'/js/'.$f.'.js';
+            $s .= "\n\t".'<script src="'.$tmp.'" id="javascript_'.$id.'"></script>';
         }
 
-        return $this->setAttributes($ret);
-    } 
+        $ret['-content-'] = $s;
+        return $ret;
+    }
 
     /**
      * Set attributes of html element
@@ -721,6 +723,6 @@ class Html
      */
     function show($rqst, $param, $page = 'body')
     {
-        $this->sendPage($page);
+        $this->render($page, ['request'=>$rqst,'params'=>$param])->send();
     }
 }

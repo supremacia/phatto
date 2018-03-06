@@ -27,11 +27,11 @@ namespace Config;
 class Html
 {
     private $name =             'default';
-    private $cached =           false;
     private $mode =             'dev'; //pro|dev
+    private $cacheTime =        20; // 6 hours of life
 
     private $pathHtml =         '';
-    private $pathHtmlCache =    '';
+    private $pathCache =    '';
     private $pathWww =          '';
     private $pathStyle =        '';
     private $pathScript =       '';
@@ -39,8 +39,8 @@ class Html
     private $header =           null;
     private $footer =           null;
 
-    private $forceCompress =    false;
     private $tag =              'x:';
+    private $request =          '';
 
 
     /**
@@ -48,19 +48,23 @@ class Html
      */
     function __construct()
     {
-        $this->pathWww  = defined('_WWWPATH')   ? _WWWPATH  : dirname(dirname(__DIR__)).'/public';
-        $this->pathHtml = defined('_HTMLPATH')  ? _HTMLPATH : dirname(dirname(__DIR__)).'/.html';
-        $this->mode     = defined('_APPMOD')    ? _APPMOD   : 'dev';
+        $root = defined(_ROOTPATH) ? _ROOTPATH : dirname(dirname(__DIR__));
         
-        $this->pathHtmlCache = $this->pathHtml.'/cache';
+        $this->pathWww  = defined('_WWWPATH')    ? _WWWPATH           : $root.'/public';
+        $this->pathHtml = defined('_HTMLPATH')   ? _HTMLPATH          : $root.'/.html';        
+        $this->pathCache = defined('_CACHEPATH') ? _CACHEPATH.'/html' : $root.'/.cache/html';
+        $this->mode     = defined('_APPMOD')     ? _APPMOD            : 'dev';
+
         $this->pathStyle = $this->pathWww.'/css';
         $this->pathScript = $this->pathWww.'/js';
 
         $this->header = $this->pathHtml.'/header.html';
         $this->footer = $this->pathHtml.'/footer.html';
+
+        $this->request = \Lib\Router::this()->getRequest();
     }
 
-    /*
+    /**
      * Return all parameters
      */
     public function getParams()

@@ -13,11 +13,13 @@ ini_set('track_errors', '1');
 
 
 // Constants
-define('_PHPPATH',  __DIR__.'/.php');    // Path to PHP application files
-define('_HTMLPATH', __DIR__.'/.html');  // Path to HTML files (templates)
-define('_WWWPATH',  __DIR__.'/public');  // Path to public folder
-define('_APPMOD',  'dev');               // Application modes: dev|pro
-//define('_URL',   'http://localhost'); // force, but the router creates this
+define('_ROOTPATH',     __DIR__);               // Root of all (not web root)
+define('_PHPPATH',      _ROOTPATH.'/.php');     // Path to PHP application files
+define('_HTMLPATH',     _ROOTPATH.'/.html');    // Path to HTML files (templates)
+define('_CACHEPATH',    _ROOTPATH.'/.cache');   // all caches here
+define('_WWWPATH',      _ROOTPATH.'/public');   // Path to public folder
+define('_APPMOD',       'dev');                 // Application modes: dev|pro
+//define('_URL',        'http://localhost');    // force, but the router creates this
 
 
 // Composer ( & all others ) autoload --

@@ -1,4 +1,4 @@
-<!doctype html>
+<?php if(time() > 1520355706) unlink($this->pathCache.'/'.$this->cacheFile);?><!doctype html>
 <html>
 
 <head>
@@ -17,7 +17,8 @@
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <x::style/>
+    <link rel="stylesheet" href="http://localhost/css/style.css" id="stylesheet_0">
+	
 </head>
 
 <body>
@@ -28,25 +29,23 @@
         </div>
         <ul id="slide-out" class="side-nav">
             <li><img src="/img/favicon/android-chrome-512x512.png" /></li>
-            <li><a href="@url"><i class="material-icons">home</i> Home</a></li>
-            <li><a href="@url/manual"><i class="material-icons">local_library</i> Manual</a></li>
-            <li><a href="@url/about"><i class="material-icons">assignment</i> Sobre</a></li>
-            <li><a href="@url/privacy"><i class="material-icons">verified_user</i> Política de Privacidade</a></li>
+            <li><a href="http://localhost"><i class="material-icons">home</i> Home</a></li>
+            <li><a href="http://localhost/manual"><i class="material-icons">local_library</i> Manual</a></li>
+            <li><a href="http://localhost/about"><i class="material-icons">assignment</i> Sobre</a></li>
+            <li><a href="http://localhost/privacy"><i class="material-icons">verified_user</i> Política de Privacidade</a></li>
         </ul>
     </header>
     <main>
         <div class="container">
             <div class="row">
                 <div class="col s12">
-                    <x:flash class="card-panel white-text red darken-4 pulse left" tag="a" href="@url" />
-                    <i class="material-icons yellow-text left">sentiment_dissatisfied</i>
-                    </x:flash>
+                    
                 </div>
             </div>
 
             <div class="row">
                 <div class="col s12">
-                    <img src="@url/img/frame.png">
+                    <img src="http://localhost/img/frame.png">
                 </div>
             </div>
 
@@ -109,7 +108,8 @@
     </footer>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-    <x::script/>
+    <script id="javascript_base">var _URL='http://localhost';</script>
+	<script src="http://localhost/js/main.js" id="javascript_0"></script>
 </body>
 
 </html>
