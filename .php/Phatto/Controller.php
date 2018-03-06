@@ -29,6 +29,7 @@ use Lib\Html;
 class Controller
 {
     private $View;
+    
 
 
     function __construct()
@@ -37,7 +38,7 @@ class Controller
 
         // Opcional for MVC in module
         //  --> comment this line for normal MVC (.php/Html/ [FILES].html)
-        $this->View->setPathHtml(__DIR__.'/Html');
+        $this->View->setPathHtml(_HTMLPATH.'/'.__NAMESPACE__);
 
         // Styles & Javascripts
         $this->View->insertStyles(['style']);
@@ -58,7 +59,7 @@ class Controller
 
     public function home()
     {
-        $this->View->render('phatto')
+        $this->View->render('home')
                ->send();
     }
 
@@ -69,7 +70,7 @@ class Controller
         $flash = 'Page "'._URL.'/'.$requested.'" not found!';
 
         //Sending
-        $this->View->render('phatto', ['flash'=>$flash])
+        $this->View->render('home', ['flash'=>$flash])
                    ->send();
     }
 }

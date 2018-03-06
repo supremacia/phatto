@@ -27,19 +27,15 @@ namespace Config;
 class Database
 {
     static $config = [
-            'mysqlxx'=>[
-                'dsn'=>'mysql:host=localhost;dbname=[ DATABASE ];charset=utf8',
-                'user'=>'[ USERNAME ]',
-                'passw'=>'[ PASSWORD ]'],
             'mysql'=>[
-                'dsn'=>'mysql:host=localhost;dbname=delivre;charset=utf8',
-                'user'=>'delivre',
-                'passw'=>'delivre#123456'],
+                'dsn'=>'mysql:host=localhost;dbname=phatto;charset=utf8',
+                'user'=>'phatto',
+                'passw'=>'phatto#123456'],
             'sqlite'=>['dsn'=>'sqlite.db']
             ];
     static $default = 'mysql';
 
-    //Configuração da tabela de usuário | Devbr\User
+    //Configuração da tabela de usuário | para sistema de login/gerenciamento
     static $userTable = ['table'=>'usuario',
                          'id'=>'id',
                          'name'=>'nome',
