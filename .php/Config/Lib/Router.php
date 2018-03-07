@@ -12,7 +12,7 @@
  * @link      Site <https://phatto.ga>
  */
 
-namespace Config;
+namespace Config\Lib;
 
 $route = new Router;
 

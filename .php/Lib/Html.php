@@ -66,10 +66,17 @@ class Html
         $name = null,
         $mode = null
     ) {
-        if (class_exists('\Config\Html')) {
-            foreach ($this as $key=>$value) {
-                if (isset(\Config\Html::$$key)) {
-                    $this->$key = \Config\Html::$$key;
+        // Nome da classe de configuração.
+        $config = '\\Config\\'.__CLASS__;
+		if(class_exists($config)){
+
+            // Instancia a classe, se necessário.
+            new $config;
+
+            // Carrega os parametros na classe atual.
+			foreach($this as $key=>$val){
+                if(isset($config::$$key)){
+                    $this->$key = $config::$$key;
                 }
             }
         }

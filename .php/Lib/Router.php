@@ -194,11 +194,14 @@ class Router
 
 
     public function loadConfig()
-    {
-        if (class_exists('\Config\Router')) {
-            foreach ($this as $key=>$value) {
-                if (isset(\Config\Router::$$key)) {
-                    $this->$key = \Config\Router::$$key;
+    {   
+        // Nome da classe de configuração.
+        $config = '\\Config\\'.__CLASS__;
+        if (class_exists($config)) {
+            // Carrega os parametros na classe atual.
+            foreach ($this as $key=>$val) {
+                if (isset($config::$$key)) {
+                    $this->$key = $config::$$key;
                 }
             }
         }

@@ -25,7 +25,9 @@ use PDO;
  */
 class Database
 {
-    private $config =   null;
+    private $config    = [];
+    private $default   = '';
+    private $userTable = [];
     
     private $conn =     null;
     private $sql    =   null;
@@ -40,12 +42,17 @@ class Database
      *
      * @param array $config configurations
      */
-    function __construct($config = null)
-    {
-        if (is_array($config)) {
-            $this->config = $config;
-        } elseif (method_exists('\Config\Database', 'get')) {
-            $this->config = \Config\Database::get($config);
+    function __construct()
+    {        
+        // Nome da classe de configuração.
+        $config = '\\Config\\'.__CLASS__;
+		if(class_exists($config)){
+            // Carrega os parametros na classe atual.
+			foreach($this as $key=>$val){
+                if(isset($config::$$key)){
+                    $this->$key = $config::$$key;
+                }
+            }
         } else {
             trigger_error('DataBase configurations not found!');
         }

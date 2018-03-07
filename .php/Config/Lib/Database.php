@@ -12,7 +12,7 @@
  * @link      Site <https://phatto.ga>
  */
 
-namespace Config;
+namespace Config\Lib;
 
 /**
  * Config\Database Class
@@ -26,17 +26,17 @@ namespace Config;
 
 class Database
 {
-    static $config = [
+    public static $config = [
             'mysql'=>[
                 'dsn'=>'mysql:host=localhost;dbname=phatto;charset=utf8',
                 'user'=>'phatto',
                 'passw'=>'phatto#123456'],
             'sqlite'=>['dsn'=>'sqlite.db']
             ];
-    static $default = 'mysql';
+    public static $default = 'mysql';
 
     //Configuração da tabela de usuário | para sistema de login/gerenciamento
-    static $userTable = ['table'=>'usuario',
+    public static $userTable = ['table'=>'usuario',
                          'id'=>'id',
                          'name'=>'nome',
                          'token'=>'token',
@@ -45,6 +45,10 @@ class Database
                          'password'=>'senha',
                          'level'=>'nivel',
                          'status'=>'status'];
+}
+
+
+
     
     /**
      * Get Database configurations
@@ -53,6 +57,7 @@ class Database
      *
      * @return bool|array    Array (or false) of the configurations
      */
+/*
     static function get($alias = null)
     {
         if ($alias === null) {
@@ -70,7 +75,8 @@ class Database
      *
      * @return string Alias of the default configurated database
      */
-    static function getDefault()
+/*
+     static function getDefault()
     {
         return static::$default;
     }
@@ -80,8 +86,11 @@ class Database
      *
      * @return array Array of user table configs.
      */
-    static function getUserConfig()
+/*
+     static function getUserConfig()
     {
         return static::$userTable;
     }
 }
+
+*/
