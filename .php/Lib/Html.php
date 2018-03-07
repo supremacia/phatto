@@ -108,7 +108,7 @@ class Html
     }
 
     /** Html template processor: Blade
-     * 
+     */ 
     public function setBlade(bool $blade = true)
     {
         $this->blade = $blade;
@@ -116,7 +116,7 @@ class Html
     }
 
     /** Html template processor: NeosTag
-     * 
+     */ 
     public function setNtag(bool $ntag = true)
     {
         $this->nTag = $ntag;
