@@ -1,6 +1,6 @@
 <?php
 /**
- * Config\Database
+ * Config\Lib\Database
  * PHP version 7
  *
  * @category  Database
@@ -15,7 +15,7 @@
 namespace Config\Lib;
 
 /**
- * Config\Database Class
+ * Config\Lib\Database Class
  *
  * @category Database
  * @package  Config
@@ -46,51 +46,3 @@ class Database
                          'level'=>'nivel',
                          'status'=>'status'];
 }
-
-
-
-    
-    /**
-     * Get Database configurations
-     *
-     * @param string $alias Database config name
-     *
-     * @return bool|array    Array (or false) of the configurations
-     */
-/*
-    static function get($alias = null)
-    {
-        if ($alias === null) {
-            return static::$config[static::$default];
-        }
-        if (isset(static::$config[$alias])) {
-            return static::$config[$alias];
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Get default database configuration
-     *
-     * @return string Alias of the default configurated database
-     */
-/*
-     static function getDefault()
-    {
-        return static::$default;
-    }
-
-    /**
-     * Get user configuration
-     *
-     * @return array Array of user table configs.
-     */
-/*
-     static function getUserConfig()
-    {
-        return static::$userTable;
-    }
-}
-
-*/

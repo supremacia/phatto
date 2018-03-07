@@ -1,6 +1,6 @@
 <?php
 /**
- * Config\Html
+ * Config\Lib\Html
  * PHP version 7
  *
  * @category  HtmlView
@@ -15,7 +15,7 @@
 namespace Config\Lib;
 
 /**
- * Config\Html Class
+ * Config\Lib\Html Class
  *
  * @category HtmlView
  * @package  Config

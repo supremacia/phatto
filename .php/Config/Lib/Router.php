@@ -1,6 +1,6 @@
 <?php
 /**
- * Config\Router
+ * Config\Lib\Router
  * PHP version 7
  *
  * @category  Router
@@ -30,7 +30,7 @@ $route->respond('get', '/', 'Phatto/Controller::home')
 
 
 /**
- * Config\Router Class
+ * Config\Lib\Router Class
  *
  * @category Router
  * @package  Config
