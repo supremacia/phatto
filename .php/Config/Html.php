@@ -9,7 +9,7 @@
  * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.1
- * @link      Author contacts <http://billrocha.tk>
+ * @link      Site <https://phatto.ga>
  */
 
 namespace Config;
@@ -21,57 +21,46 @@ namespace Config;
  * @package  Config
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     Author contacts <http://billrocha.tk>
+ * @link     Site <https://phatto.ga>
  */
 
 class Html
 {
-    private $name =             'default';
-    private $mode =             'dev'; //pro|dev
-    private $cacheTime =        20; // 6 hours of life
+    public static $name =             'default';
+    public static $mode =             'dev'; //pro|dev
+    public static $cacheTime =        20; // 6 hours of life
 
-    private $pathHtml =         '';
-    private $pathCache =    '';
-    private $pathWww =          '';
-    private $pathStyle =        '';
-    private $pathScript =       '';
+    public static $pathHtml =         '';
+    public static $pathCache =        '';
+    public static $pathWww =          '';
+    public static $pathStyle =        '';
+    public static $pathScript =       '';
 
-    private $header =           null;
-    private $footer =           null;
+    public static $header =           null;
+    public static $footer =           null;
 
-    private $tag =              'x:';
-    private $request =          '';
+    public static $tag =              'x:';
+    public static $request =          '';
 
 
     /**
      * Boot settings
      */
-    function __construct()
+    public function __construct()
     {
         $root = defined(_ROOTPATH) ? _ROOTPATH : dirname(dirname(__DIR__));
         
-        $this->pathWww  = defined('_WWWPATH')    ? _WWWPATH           : $root.'/public';
-        $this->pathHtml = defined('_HTMLPATH')   ? _HTMLPATH          : $root.'/.html';        
-        $this->pathCache = defined('_CACHEPATH') ? _CACHEPATH.'/html' : $root.'/.cache/html';
-        $this->mode     = defined('_APPMOD')     ? _APPMOD            : 'dev';
+        static::$pathWww  = defined('_WWWPATH')    ? _WWWPATH           : $root.'/public';
+        static::$pathHtml = defined('_HTMLPATH')   ? _HTMLPATH          : $root.'/.html';
+        static::$pathCache = defined('_CACHEPATH') ? _CACHEPATH.'/html' : $root.'/.cache/html';
+        static::$mode     = defined('_APPMOD')     ? _APPMOD            : 'dev';
 
-        $this->pathStyle = $this->pathWww.'/css';
-        $this->pathScript = $this->pathWww.'/js';
+        static::$pathStyle =  static::$pathWww.'/css';
+        static::$pathScript = static::$pathWww.'/js';
 
-        $this->header = $this->pathHtml.'/header.html';
-        $this->footer = $this->pathHtml.'/footer.html';
+        static::$header = static::$pathHtml.'/header.html';
+        static::$footer = static::$pathHtml.'/footer.html';
 
-        $this->request = \Lib\Router::this()->getRequest();
-    }
-
-    /**
-     * Return all parameters
-     */
-    public function getParams()
-    {
-        foreach ($this as $k => $v) {
-            $cfg[$k] = $v;
-        }
-        return $cfg;
+        static::$request = \Lib\Router::this()->getRequest();
     }
 }

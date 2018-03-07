@@ -9,7 +9,7 @@
  * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.1
- * @link      Author contacts <http://billrocha.tk>
+ * @link      Site <https://phatto.ga>
  */
 namespace Lib;
 
@@ -20,7 +20,7 @@ namespace Lib;
  * @package  Library
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     Author contacts <http://billrocha.tk>
+ * @link     Site <https://phatto.ga>
  */
 class Router
 {
@@ -29,7 +29,7 @@ class Router
     private $http = '';
     private $base = '';
     private $request = false;
-    private $routers = [];
+    private $routes = [];
     private $params = [];
     private $args = []; //extra params in 'respond'
     private $all = [];
@@ -53,90 +53,90 @@ class Router
     private static $ctrl = null;
     
     //GETs -----------------------------------------------------------------
-    function getUrl()
+    public function getUrl()
     {
         return $this->url;
     }
-    function getHttp()
+    public function getHttp()
     {
         return $this->http;
     }
-    function getBase()
+    public function getBase()
     {
         return $this->base;
     }
-    function getRequest()
+    public function getRequest()
     {
         return $this->request;
     }
-    function getRouters()
+    public function getRoutes()
     {
-        return $this->routers;
+        return $this->routes;
     }
-    function getAll()
+    public function getAll()
     {
         return $this->all;
     }
-    function getMethod()
+    public function getMethod()
     {
         return $this->method;
     }
     
-    function getController()
+    public function getController()
     {
         return $this->controller;
     }
-    function getAction()
+    public function getAction()
     {
         return $this->action;
     }
-    function getSeparator()
+    public function getSeparator()
     {
         return $this->separator;
     }
-    function getParams()
+    public function getParams()
     {
         return count($this->params) > 0 ? $this->params : null;
     }
     //SETs -----------------------------------------------------------------
-    function setSeparator($v)
+    public function setSeparator($v)
     {
         $this->separator = $v;
         return $this;
     }
     
-    function setDefaultController($v)
+    public function setDefaultController($v)
     {
         $this->defaultController = trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
     
-    function setDefaultAction($v)
+    public function setDefaultAction($v)
     {
         $this->defaultAction = trim($v, '\\/ ');
         return $this;
     }
     
-    function setNamespacePrefix($v)
+    public function setNamespacePrefix($v)
     {
         $this->namespacePrefix = $v === '' ? '' : '\\'.trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
 
     //CLI
-    function setDefaultCliController($v)
+    public function setDefaultCliController($v)
     {
         $this->defaultCliController = trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
     }
     
-    function setDefaultCliAction($v)
+    public function setDefaultCliAction($v)
     {
         $this->defaultCliAction = trim($v, '\\/ ');
         return $this;
     }
     
-    function setNamespaceCliPrefix($v)
+    public function setNamespaceCliPrefix($v)
     {
         $this->namespaceCliPrefix = $v === '' ? '' : '\\'.trim(str_replace('/', '\\', $v), '\\/ ');
         return $this;
@@ -145,7 +145,7 @@ class Router
     /**
      * Constructor
      */
-    function __construct(
+    public function __construct(
         $autorun = true,
         $request = null,
         $url = null
@@ -180,8 +180,8 @@ class Router
             return static::$node;
         }
         //else...
-        list($routers, $request, $url) = array_merge(func_get_args(), [null, null, null]);
-        return static::$node = new static($routers, $request, $url);
+        list($autorun, $request, $url) = array_merge(func_get_args(), [null, null, null]);
+        return static::$node = new static($autorun, $request, $url);
     }
     
     /**
@@ -193,12 +193,15 @@ class Router
     }
 
 
-    function loadConfig()
+    public function loadConfig()
     {
         if (class_exists('\Config\Router')) {
-            new \Config\Router($this);
+            foreach ($this as $key=>$value) {
+                if (isset(\Config\Router::$$key)) {
+                    $this->$key = \Config\Router::$$key;
+                }
+            }
         }
-
         return $this;
     }
     
@@ -206,7 +209,7 @@ class Router
      * Make happen...
      *
      */
-    function run()
+    public function run()
     {
         //Resolve request
         $this->resolve();
@@ -237,7 +240,7 @@ class Router
         //Instantiate the controller
         if (class_exists($ctrl)) {
             static::$ctrl = new $ctrl($this->params, $this->request);
-            //IN CLI mode finish in this point: Cli\Main::__construct return to CMD.
+        //IN CLI mode finish in this point: Cli\Main::__construct return to CMD.
         } else {
             if ($this->method != 'CLI') {
                 header("HTTP/1.0 404 Not Found");
@@ -266,19 +269,19 @@ class Router
     }
 
     /**
-     * Resolve routers
+     * Resolve routes
      *
      */
-    function resolve()
+    public function resolve()
     {
         if ($this->method == 'CLI') {
             $route = $this->searchCliRoute();
         } else {
-        //first: serach in ALL
+            //first: serach in ALL
             $route = $this->searchRoute($this->all);
-        //now: search for access method
-            if ($route === false && isset($this->routers[$this->method])) {
-                $route = $this->searchRoute($this->routers[$this->method]);
+            //now: search for access method
+            if ($route === false && isset($this->routes[$this->method])) {
+                $route = $this->searchRoute($this->routes[$this->method]);
             }
         }
         //not match...
@@ -294,17 +297,16 @@ class Router
         return $route;
     }
     /**
-     * Insert/config routers
+     * Insert/config routes
      *
      */
-    function respond(
+    public function respond(
         $method = 'all',
         $request = '',
         $controller = null,
         $action = null,
         $args = null
     ) {
-    
         $method = strtoupper(trim($method));
         //Para sintaxe: CONTROLLER::ACTION
         if (!is_object($controller) && strpos($controller, $this->separator) !== false) {
@@ -316,10 +318,10 @@ class Router
             $this->all[] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action, 'args' => $args];
         } else {
             foreach (explode('|', $method) as $mtd) {
-                $this->routers[$mtd][] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action, 'args' => $args];
+                $this->routes[$mtd][] = ['request' => trim($request, '/'), 'controller' => $controller, 'action' => $action, 'args' => $args];
             }
         }
-            return $this;
+        return $this;
     }
     /**
      * Mount

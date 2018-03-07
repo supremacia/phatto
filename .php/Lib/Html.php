@@ -10,7 +10,7 @@
  * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.2
- * @link      Author contacts <http://billrocha.tk>
+ * @link      Site <https://phatto.ga>
  */
 namespace Lib;
 
@@ -21,18 +21,17 @@ namespace Lib;
  * @package  Library
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     Author contacts <http://billrocha.tk>
+ * @link     Site <https://phatto.ga>
  */
 class Html
 {
-
     private $name =             '';
     private $mode =             'dev'; //pro|dev
     private $cacheTime =        21600; // 6 hours of life
     private $cacheFile =        'default.html';
 
     private $pathHtml =         null;
-    private $pathCache =    null;
+    private $pathCache =        null;
     private $pathWww =          null;
     private $pathStyle =        null;
     private $pathScript =       null;
@@ -52,7 +51,7 @@ class Html
     private $blade =            false;
     private $nTag =             true;
 
-    static private $values =    [];
+    private static $values =    [];
     private static $node =      null;
 
     private $jsvalues =         [];
@@ -64,55 +63,19 @@ class Html
      * Construct of Doc
      */
     public function __construct(
-        $config = null,
         $name = null,
         $mode = null
     ) {
-        if (is_array($config) && isset($config['pathHtml'])) {
-            foreach ($config as $k => $v) {
-                $this->{$k} = $v;
+        if (class_exists('\Config\Html')) {
+            foreach ($this as $key=>$value) {
+                if (isset(\Config\Html::$$key)) {
+                    $this->$key = \Config\Html::$$key;
+                }
             }
-        } elseif (method_exists('Config\Html', 'getParams')) {
-            foreach ((new \Config\Html)->getParams() as $k => $v) {
-                $this->{$k} = $v;
-            }
-        }
-
-        if ($this->pathHtml === null) {
-            $this->pathHtml = dirname(dirname(dirname(__DIR__))).'/Html';
-        }
-
-        if ($this->pathWww === null) {
-            $this->pathWww  = dirname(dirname(dirname(dirname(__DIR__))));
         }
 
         if ($this->url === null) {
             $this->url = defined('_URL')  ? _URL  : './';
-        }
-
-        //Acertando o final com barras
-        $this->url = rtrim($this->url, ' /');
-        $this->pathHtml = rtrim($this->pathHtml, ' /');
-        $this->pathWww = rtrim($this->pathWww, ' /');
-
-        if ($this->pathCache === null) {
-            $this->pathCache = $this->pathHtml.'/cache';
-        }
-
-        if ($this->pathStyle === null) {
-            $this->pathStyle = $this->pathWww.'css';
-        }
-
-        if ($this->pathScript === null) {
-            $this->pathScript = $this->pathWww.'js';
-        }
-
-        if ($this->header === null) {
-            $this->header = $this->pathHtml.'header.html';
-        }
-
-        if ($this->footer === null) {
-            $this->footer = $this->pathHtml.'footer.html';
         }
 
         if ($name !== null) {
@@ -122,11 +85,6 @@ class Html
         if ($mode !== null) {
             $this->mode =   $mode;
         }
-
-        //Acertando o final com barras
-        $this->pathCache = rtrim($this->pathCache, ' /');
-        $this->pathScript = rtrim($this->pathScript, ' /');
-        $this->pathStyle = rtrim($this->pathStyle, ' /');
 
         //Saving this object in static node (for future static access)
         if (!is_object(static::$node)) {
@@ -145,18 +103,20 @@ class Html
             return static::$node;
         }
         //else...
-        list($config, $name, $mode) = array_merge(func_get_args(), [null, null, null]);
-        return static::$node = new static($config, $name, $mode);
+        list($name, $mode) = array_merge(func_get_args(), [null, null]);
+        return static::$node = new static($name, $mode);
     }
 
-    //Html template processor: Blade
+    /** Html template processor: Blade
+     * 
     public function setBlade(bool $blade = true)
     {
         $this->blade = $blade;
         return $this;
     }
 
-    //Html template processor: NeosTag
+    /** Html template processor: NeosTag
+     * 
     public function setNtag(bool $ntag = true)
     {
         $this->nTag = $ntag;
@@ -274,7 +234,8 @@ class Html
         //Gerando o NAME da compilação para o cache.
         $this->cacheFile = $this->name.'_'
             .md5($this->request)
-            .md5(implode('', $this->body)
+            .md5(
+                implode('', $this->body)
                 .implode('', $this->header)
                 .implode('', $this->footer)
             );
@@ -294,7 +255,7 @@ class Html
             $this->setContent(str_replace(["\r","\n","\t",'  '], '', $this->getContent()));
         }
 
-        //Html template processors        
+        //Html template processors
         if ($this->nTag) {
             $this->produceNTag();
         }
@@ -305,16 +266,20 @@ class Html
         //Insert cache data
         self::checkAndOrCreateDir($this->pathCache, true);
 
-        //Delete this cache file at expiration 
+        //Delete this cache file at expiration
         $expiration = '<?php if(time() > '.(time() + $this->cacheTime).') unlink($this->pathCache.\'/\'.$this->cacheFile);?>';
         
-        file_put_contents($this->pathCache.'/'.$this->cacheFile, 
-                          $expiration.$this->getContent());
+        file_put_contents(
+        
+            $this->pathCache.'/'.$this->cacheFile,
+                          $expiration.$this->getContent()
+        
+        );
         
         return $this;
     }
 
-    /** 
+    /**
      * Style list insert
      */
     public function insertStyles($list)
@@ -362,7 +327,7 @@ class Html
         }
     }
 
-    /** 
+    /**
      * Insere o conteúdo processado Html
      */
     protected function setContent($content)
@@ -371,7 +336,7 @@ class Html
         return $this;
     }
 
-    /** 
+    /**
      * Pega o conteúdo processado Html
      */
     protected function getContent()
@@ -379,7 +344,7 @@ class Html
         return $this->content;
     }
 
-    /** 
+    /**
      * Pega uma variável ou todas
      */
     public function getVar($var = null)
@@ -390,7 +355,7 @@ class Html
     }
 
 
-    /** 
+    /**
      * STATIC GET VAR
      */
     protected static function get($var = null)
@@ -422,7 +387,7 @@ class Html
         return $this;
     }
 
-    /** 
+    /**
      * Registra uma variável para o Javascript
      */
     public function jsvar($name, $value = null)
@@ -472,7 +437,7 @@ class Html
         }//end while
 
         //returns the processed contents
-            return $this->getContent();
+        return $this->getContent();
     }
 
     /**
@@ -560,7 +525,7 @@ class Html
     {
         $arquivo = $this->getContent();
 
-        $ret = preg_replace_callback('/@(.*?)[^\d\w\.\(\)\[\]]/', function($cap){
+        $ret = preg_replace_callback('/@(.*?)[^\d\w\.\(\)\[\]]/', function ($cap) {
             $e = substr($cap[0], -1);
             $var = ($cap[1] == 'url') ? $this->url : '<?php echo \\'.__CLASS__.'::get("'.$cap[1].'")?>';
             return $var.($e != ' ' ? $e : '');
@@ -630,7 +595,7 @@ class Html
      * Set attributes of html element
      *
      * @param array $a array of elements
-     * @return strig contents 
+     * @return strig contents
      */
     public function setAttributes($a)
     {
@@ -694,7 +659,7 @@ class Html
      *
      * @return bool          status of directory (exists/created = false or true)
      */
-    static function checkAndOrCreateDir($dir, $create = false, $perm = 0777)
+    public static function checkAndOrCreateDir($dir, $create = false, $perm = 0777)
     {
         if (is_dir($dir) && is_writable($dir)) {
             return true;
@@ -721,7 +686,7 @@ class Html
      * @param string $page full path of the page
      * @return void
      */
-    function show($rqst, $param, $page = 'body')
+    public function show($rqst, $param, $page = 'body')
     {
         $this->render($page, ['request'=>$rqst,'params'=>$param])->send();
     }

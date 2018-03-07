@@ -9,7 +9,7 @@
  * @copyright 2018 Bill Rocha <http://google.com/+BillRocha>
  * @license   <https://opensource.org/licenses/MIT> MIT
  * @version   GIT: 0.0.1
- * @link      Author contacts <http://billrocha.tk>
+ * @link      Site <https://phatto.ga>
  */
 
 namespace Config;
@@ -21,7 +21,7 @@ namespace Config;
  * @package  Config
  * @author   Bill Rocha <prbr@ymail.com>
  * @license  <https://opensource.org/licenses/MIT> MIT
- * @link     Author contacts <http://billrocha.tk>
+ * @link     Site <https://phatto.ga>
  */
 
 class Database

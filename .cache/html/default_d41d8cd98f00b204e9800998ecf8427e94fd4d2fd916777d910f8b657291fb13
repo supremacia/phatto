@@ -1,4 +1,4 @@
-<?php if(time() > 1520355706) unlink($this->pathCache.'/'.$this->cacheFile);?><!doctype html>
+<?php if(time() > 1520441277) unlink($this->pathCache.'/'.$this->cacheFile);?><!doctype html>
 <html>
 
 <head>
@@ -17,7 +17,7 @@
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <link rel="stylesheet" href="http://localhost/css/style.css" id="stylesheet_0">
+    <link rel="stylesheet" href="http://192.168.0.106/css/style.css" id="stylesheet_0">
 	
 </head>
 
@@ -29,10 +29,10 @@
         </div>
         <ul id="slide-out" class="side-nav">
             <li><img src="/img/favicon/android-chrome-512x512.png" /></li>
-            <li><a href="http://localhost"><i class="material-icons">home</i> Home</a></li>
-            <li><a href="http://localhost/manual"><i class="material-icons">local_library</i> Manual</a></li>
-            <li><a href="http://localhost/about"><i class="material-icons">assignment</i> Sobre</a></li>
-            <li><a href="http://localhost/privacy"><i class="material-icons">verified_user</i> Política de Privacidade</a></li>
+            <li><a href="http://192.168.0.106"><i class="material-icons">home</i> Home</a></li>
+            <li><a href="http://192.168.0.106/manual"><i class="material-icons">local_library</i> Manual</a></li>
+            <li><a href="http://192.168.0.106/about"><i class="material-icons">assignment</i> Sobre</a></li>
+            <li><a href="http://192.168.0.106/privacy"><i class="material-icons">verified_user</i> Política de Privacidade</a></li>
         </ul>
     </header>
     <main>
@@ -45,7 +45,7 @@
 
             <div class="row">
                 <div class="col s12">
-                    <img src="http://localhost/img/frame.png">
+                    <img src="http://192.168.0.106/img/frame.png">
                 </div>
             </div>
 
@@ -108,8 +108,8 @@
     </footer>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-    <script id="javascript_base">var _URL='http://localhost';</script>
-	<script src="http://localhost/js/main.js" id="javascript_0"></script>
+    <script id="javascript_base">var _URL='http://192.168.0.106';</script>
+	<script src="http://192.168.0.106/js/main.js" id="javascript_0"></script>
 </body>
 
 </html>
