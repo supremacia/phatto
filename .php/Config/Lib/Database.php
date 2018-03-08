@@ -27,22 +27,27 @@ namespace Config\Lib;
 class Database
 {
     public static $config = [
-            'mysql'=>[
-                'dsn'=>'mysql:host=localhost;dbname=phatto;charset=utf8',
-                'user'=>'phatto',
-                'passw'=>'phatto#123456'],
-            'sqlite'=>['dsn'=>'sqlite.db']
-            ];
+        'mysql'=>[
+            'dsn'=>'mysql:host=localhost;dbname=phatto;charset=utf8',
+            'user'=>'phatto',
+            'passw'=>'phatto#123456'],
+        'sqlite'=>[
+            'dsn'=>'sqlite.db'
+        ]
+    ];
+    
     public static $default = 'mysql';
 
     //Configuração da tabela de usuário | para sistema de login/gerenciamento
-    public static $userTable = ['table'=>'usuario',
-                         'id'=>'id',
-                         'name'=>'nome',
-                         'token'=>'token',
-                         'life'=>'vida',
-                         'login'=>'login',
-                         'password'=>'senha',
-                         'level'=>'nivel',
-                         'status'=>'status'];
+    public static $userTable = [
+        'table'=>'usuario',
+        'id'=>'id',
+        'name'=>'nome',
+        'token'=>'token',
+        'life'=>'vida',
+        'login'=>'login',
+        'password'=>'senha',
+        'level'=>'nivel',
+        'status'=>'status'
+    ];
 }
