@@ -4,12 +4,12 @@ namespace Lib\NTag;
 
 class NTList
 {
-    private $Html = null;
+    private $NTag = null;
 
 
     function __construct()
     {
-        $this->Html = \Lib\Html::this();
+        $this->NTag = \Lib\NTag::this();
     }
 
     /**
@@ -24,13 +24,13 @@ class NTList
         if (!isset($data['data'])) {
             return '';
         }
-        $v = $this->Html->getVar($data['data']);
+        $v = $this->NTag->getVar($data['data']);
         if (!$v || !is_array($v)) {
             return '';
         }
 
         $tag = isset($data['tag']) ? $data['tag'] : 'li';
-        $data = $this->Html->clearData($data);
+        $data = $this->NTag->clearData($data);
 
         //Tag UL and params. (class, id, etc)
         $o = '<ul';

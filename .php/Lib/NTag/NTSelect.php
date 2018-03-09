@@ -4,12 +4,12 @@ namespace Lib\NTag;
 
 class NTSelect
 {
-    private $Html = null;
+    private $NTag = null;
 
 
     function __construct()
     {
-        $this->Html = \Lib\Html::this();
+        $this->NTag = \Lib\NTag::this();
     }
 
     /**
@@ -19,7 +19,7 @@ class NTSelect
      *       exemplo:
      *
      *       $select = ['teste'=>['1'=>'Valor 1','2'=>'Valor 2','3'=>'Valor 3','-default-'=>'2']]
-     *       $LibDocHtml->val('varName',$select);
+     *       $NTag->val('varName',$select);
      *
      *
      *       ---- in HTML file
@@ -34,7 +34,7 @@ class NTSelect
             return '';
         }
         
-        $var = $this->Html->getVar($data['data']);
+        $var = $this->NTag->getVar($data['data']);
         if (!$var) {
             return false;
         }
@@ -48,6 +48,6 @@ class NTSelect
         }
         $data['-content-'] = $o;
         $data['tag'] = 'select';
-        return $this->Html->setAttributes($data);
+        return $this->NTag->setAttributes($data);
     }
 }

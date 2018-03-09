@@ -15,6 +15,7 @@
 namespace Phatto;
 
 use Lib\Html;
+use Lib\NTag;
 
 /**
  * Phatto\Controller Class
@@ -28,39 +29,25 @@ use Lib\Html;
 
 class Controller
 {
-    private $View;
-    
-
 
     function __construct()
     {
-        $this->View = new Html;
-
-        // Opcional for MVC in module
-        //  --> comment this line for normal MVC (.php/Html/ [FILES].html)
-        $this->View->setPathHtml(_HTMLPATH.'/'.__NAMESPACE__);
-
-        // Styles & Javascripts
-        $this->View->insertStyles(['style']);
-        $this->View->insertScripts(['main']);
-
-        // Use Blade
-        $this->View->setBlade(true);
-      
-
-        //DELETE
-        $this->View->val('Teste', 'Conteúdo do Teste');
-        
-        $this->View->val('block', 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.');
-
-        $this->View->val('teste', ['1'=>'Valor 1', '2'=>'Valor 2', '3'=>'Valor 3','-default-'=>'2']);
+        // ... nada
     }
 
 
     public function home()
     {
-        $this->View->render('home')
-               ->send();
+        // instantiating class
+        $nt = new NTag;
+
+        // add styles & scripts
+        $nt->setStyle('style.css')
+           ->setScript('main.js')
+
+        // rendering and sending to the client
+           ->render('body')
+           ->send();
     }
 
 
@@ -69,8 +56,15 @@ class Controller
         //Formatting the flash message ...
         $flash = 'Page "'._URL.'/'.$requested.'" not found!';
 
-        //Sending
-        $this->View->render('home', ['flash'=>$flash])
-                   ->send();
+        // instantiating class
+        $nt = new NTag;
+
+        // add styles & scripts
+        $nt->setStyle('style.css')
+           ->setScript('main.js')
+
+        // rendering and sending to the client
+           ->render('body', ['flash'=>$flash])
+           ->send();
     }
 }
