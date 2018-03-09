@@ -42,6 +42,7 @@ class NTag
 
     // External
     public static $plugins   = [];
+    public static $url       = '/';
 
     /**
      * Boot settings
@@ -57,6 +58,8 @@ class NTag
 
         static::$header     = static::$template.'/header.html';
         static::$footer     = static::$template.'/footer.html';
+
+        static::$url        = _URL;
 
         static::$plugins['datacontent'] = '\Plugin\Datacontent';
     }

@@ -35,6 +35,9 @@ sup {
 .side-nav * {
     color: #ffffff !important;
 }
+.side-nav ul {
+    margin-left: 30px ;
+}
 #menu {
     position: fixed;
     top: 20px;
@@ -71,8 +74,8 @@ sup {
     color: #d22025;
 }
 #slide-out li:first-child img {
-    width: 80%;
-    margin: 20px 10%;
+    width: 30%;
+    margin: 20px 30%;
 }
 .umbler {
     width: 200px;

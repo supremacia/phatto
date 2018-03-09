@@ -17,7 +17,12 @@ namespace Config\Lib;
 $route = new Router;
 
 $route->respond('get', '/', 'Phatto/Controller::home')
-      ->respond('post', '/', 'Phatto/Controller::home');
+      ->respond('get', '/manual', 'Phatto/Controller::manual')
+      ->respond('get', '/manual/router', 'Phatto/Controller::router')
+      ->respond('get', '/manual/database', 'Phatto/Controller::database')
+      ->respond('get', '/manual/ntag', 'Phatto/Controller::ntag')
+      ->respond('get', '/about', 'Phatto/Controller::about')
+      ->respond('get', '/privacy', 'Phatto/Controller::privacy');
 
 
 
@@ -56,10 +61,8 @@ class Router
     public static $routes               = [];
 
     public static $autorun              = true;
-    public static $url                  = false;
     public static $http                 = '';
     public static $base                 = '';
-    public static $request              = false;
     public static $params               = [];
     public static $args                 = [];
     public static $method               = 'GET';

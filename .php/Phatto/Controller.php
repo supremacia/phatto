@@ -14,7 +14,6 @@
 
 namespace Phatto;
 
-use Lib\Html;
 use Lib\NTag;
 
 /**
@@ -29,42 +28,75 @@ use Lib\NTag;
 
 class Controller
 {
+    private $ntag = null;
 
     function __construct()
     {
-        // ... nada
+        // instantiating class
+        $this->ntag = new NTag;
+
+        // add styles & scripts
+        $this->ntag->setStyle('style.css')
+                   ->setScript('main.js');
     }
 
 
     public function home()
     {
-        // instantiating class
-        $nt = new NTag;
-
-        // add styles & scripts
-        $nt->setStyle('style.css')
-           ->setScript('main.js')
-
         // rendering and sending to the client
-           ->render('body')
-           ->send();
+        $this->ntag->render('body')
+                   ->send();
     }
 
+    public function manual()
+    {
+        // rendering and sending to the client
+        $this->ntag->render('manual/index')
+                   ->send();
+    }
+
+    public function router()
+    {
+        // rendering and sending to the client
+        $this->ntag->render('manual/router')
+                   ->send();
+    }
+
+    public function database()
+    {
+        // rendering and sending to the client
+        $this->ntag->render('manual/database')
+                   ->send();
+    }
+
+    public function ntag()
+    {
+        // rendering and sending to the client
+        $this->ntag->render('manual/ntag')
+                   ->send();
+    }
+
+    public function about()
+    {
+        // rendering and sending to the client
+        $this->ntag->render('about')
+                   ->send();
+    }
+
+    public function privacy()
+    {
+        // rendering and sending to the client
+        $this->ntag->render('privacy')
+                   ->send();
+    }
 
     public function notFound($requested)
     {
         //Formatting the flash message ...
         $flash = 'Page "'._URL.'/'.$requested.'" not found!';
 
-        // instantiating class
-        $nt = new NTag;
-
-        // add styles & scripts
-        $nt->setStyle('style.css')
-           ->setScript('main.js')
-
         // rendering and sending to the client
-           ->render('body', ['flash'=>$flash])
-           ->send();
+        $this->ntag->render('body', ['flash'=>$flash])
+                   ->send();
     }
 }

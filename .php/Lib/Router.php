@@ -354,12 +354,12 @@ class Router
         }
         
         //URL & REQST Constants:
-        if ($this->request === false) {
+        if ($this->request == false) {
             $this->request = urldecode(isset($_SERVER['REQUEST_URI']) ? urldecode(trim(str_replace($this->base, '', trim($_SERVER['REQUEST_URI'])), ' /')) : '');
         }
         defined('_RQST') || define('_RQST', $this->request);
 
-        if ($this->url === false) {
+        if ($this->url == false) {
             $this->url = isset($_SERVER['SERVER_NAME']) ? $this->http . $_SERVER['SERVER_NAME'] . $this->base : '';
         }
         defined('_URL') || define('_URL', $this->url);
