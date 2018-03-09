@@ -44,7 +44,7 @@ class Datacontent
 			                        <p>The view control library is simple, fast, and low learning curve. Perfect for medium and small projects, it also has <b>NeosTags&copy;</b> - innovative and fluid template bounding!</p>
 			                        <p><b>NeosTags&copy;</b> use configuration very similar to HTML tags, facilitating the use and learning even of those who do not have knowledge of PHP programming. The front designers of your team will love it !! <i class="material-icons">loyalty</i></p>
 			                        <p>The system can still be configured to work with conventional MVC or MVC.</p>
-			                        <p>Create your own plugins and components easily with <b>NeosTags&copy;</b>v, easily exporting them to other projects.</p>
+			                        <p>Create your own plugins and components easily with <b>NeosTags&copy;</b>, easily exporting them to other projects.</p>
 			                    </div>
 			                </li>
 			                <li>
