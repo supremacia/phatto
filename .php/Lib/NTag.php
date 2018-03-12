@@ -284,6 +284,19 @@ class NTag
     }
 
     /**
+     * Shows page
+     *
+     * @param array $rqst
+     * @param array $param
+     * @param string $page full path of the page
+     * @return void
+     */
+    public function show($rqst, $param, $page = 'body')
+    {
+        $this->render($page, ['request'=>$rqst,'params'=>$param])->send();
+    }
+
+    /**
      * [render description]
      * @param  [type] $html [description]
      * @param  [type] $var  [description]
@@ -323,7 +336,7 @@ class NTag
 
         // compressing
         if ($this->mode == 'pro') {
-            $this->setContent(str_replace(["\r","\n","\t",'  '], '', $this->getContent()));
+            $this->setContent($this->minifyHTML($this->getContent()));
         }
 
         // creates, if not exists, cache directory
@@ -775,15 +788,59 @@ class NTag
 
 
     /**
-     * Shows page
+     * Minify HTML string
      *
-     * @param array $rqst
-     * @param array $param
-     * @param string $page full path of the page
-     * @return void
+     * @param string $html
+     * @return string
      */
-    public function show($rqst, $param, $page = 'body')
+    private function minifyHTML($html)
     {
-        $this->render($page, ['request'=>$rqst,'params'=>$param])->send();
+        $pattern = '/<(?<script>script).*?<\/script\s*>|<(?<style>style).*?<\/style\s*>|<!(?<comment>--).*?-->|<(?<tag>[\/\w.:-]*)(?:".*?"|\'.*?\'|[^\'">]+)*>|(?<text>((<[^!\/\w.:-])?[^<]*)+)|/si';                
+        preg_match_all($pattern, $html, $matches, PREG_SET_ORDER);
+        $overriding = false;
+        $raw_tag = false;
+        // Variable reused for output
+        $html = '';
+        foreach ( $matches as $token ) {
+            $tag = (isset($token['tag'])) ? strtolower($token['tag']) : null;    
+            $content = $token[0];
+                            
+            if ( is_null( $tag ) ) {                            
+                if ( !empty( $token['script'] ) ) {                                    
+                    $strip = true;                                        
+                } else if ( !empty($token['style'] ) ) {                                    
+                    $strip = true;                                                                               
+                } else if ( $this->remove_comments ) {                                    
+                    if ( !$overriding && $raw_tag != 'textarea' ) {                                            
+                        // Remove any HTML comments, except MSIE conditional comments
+                        $content = preg_replace('/<!--(?!\s*(?:\[if [^\]]+]|<!|>))(?:(?!-->).)*-->/s', '', $content);                                                
+                    }
+                }                                
+            } else {                            
+                if ( $tag == 'pre' || $tag == 'textarea' || $tag == 'script' ) {                                    
+                    $raw_tag = $tag;                                        
+                } else if ( $tag == '/pre' || $tag == '/textarea' || $tag == '/script' ) {                                    
+                    $raw_tag = false;                                        
+                } else {                                        
+                    if ($raw_tag || $overriding) {                                            
+                        $strip = false;                                                
+                    } else {                                            
+                        $strip = true;                                                
+                        // Remove any empty attributes, except:
+                        // action, alt, content, src
+                        $content = preg_replace('/(\s+)(\w++(?<!\baction|\balt|\bcontent|\bsrc)="")/', '$1', $content);
+                                                    
+                        // Remove any space before the end of self-closing XHTML tags
+                        // JavaScript excluded
+                        $content = str_replace(' />', '/>', $content);                                                
+                    }
+                }
+            }
+            if ( $strip ) {                            
+                $content = str_replace(["\r","\n","\t",'  '], '', $content);                             
+            }
+            $html .= $content;                        
+        }                
+    return $html;
     }
 }
