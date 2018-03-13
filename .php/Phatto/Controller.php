@@ -58,7 +58,10 @@ class Controller
     public function router()
     {
         // rendering and sending to the client
-        $this->ntag->render('manual/router')
+        $this->ntag->setStyle('medium-editor.min.css')
+                   ->setScript('medium-editor.min.js')
+                   ->setScript('manual.js')
+                   ->render('manual/router')
                    ->send();
     }
 

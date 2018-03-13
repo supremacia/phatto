@@ -1,24 +1,181 @@
 <x::header/>
 
-<x::part file="inc/header"/>
+<x::part file="inc/header" />
 
-	<main>
-        <div class="container">
-            <div class="row">
-                <div class="col s12">
+<main>
+	<div class="container">
+		<div class="row">
+			<div class="col s12 editable">
+				<h2>Router</h2>
+				<p>Hoje em dia não é mais necessário explicar a necessidade e a importância de se ter um <b>Router</b> em sua aplicação. Se você não conhece, entenda que o Router é responsável por analisar as requisições ao 			seu aplicativo web ( site, etc ) e responder com o controlador pré configurado ou uma página estática, um arquivo, etc.</p>
+				<p>Veja o arquivo de inicialização ( no front controller ) para acionar o roteador em sua aplicação web:</p>
+				<pre>
+&lt;?php
 
-					<h2>Router</h2>
+include "/.php/Composer/autoload.php";
 
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+( new Lib\Router )-&gt;run();</pre>
+				<p>Esta inicialização simples carrega o "autoload" do Composer e, em seguida, cria uma instância do "Lib\Router" ( entre parenteses ) e chama o método "run" desse objeto. O router usará a configuração ( Config/Lib/Router ) para analisar as requisições e responde-las adequadamente.</p>
+				
+				<p>O seguinte trecho do Config\Lib\Router é usado para chamar o controlador da página "home":</p>
 
-				</div>
+				<pre>$router-&gt;respond('get', '/', 'Phatto/Controller::home' [, action, extra ]);</pre>
+				
+				<p><i>** Entre colchetes são parâmetros opcionais.</i></p>
+				
+				<p>Usamos o método "respond" para configurar as rotas. Os parametros desse método são os seguintes:</p>
+				
+				<p><b>Method: [ 'get' ] - </b>Pode ser qualquer um dos métodos HTTP válidos ( get,push, put... ). Para usar mais de um método com a mesma configuração você os separará com a barra "|" ( get|push|put ) e, em caso de responder a todos os métodos, use a palavra "all".</p>
+
+				<p><b>Request: [ '/' ] - </b>Aqui você indica o que espera receber na URL de acesso de forma estática ( ex.: /produtos/ ) ou com o uso de expressões regulares do PHP ( ex.: /produtos/(\+d) ). Para deixar as configurações bem flexíveis e fáceis de usar, não existe uma "linguagem" específica do Router (como acontece com outros similares). Você usa simplesmente as expressões regulares e pronto!
+					<br>No final desse artigo temos alguns exemplos de configurações para facilitar o aprendizado.</p>
+				
+				<p><b>Controller: [ 'Phatto/Controller::home' ] - </b>Aqui você indica o controlador que responderá a requisição.
+					Pode ser uma classe e método, uma função anônima ou uma chamada direta a classe NTag e método "show" ( Lib\NTag::show()
+					). O objeto receberá dois parâmetros: o primeiro é uma string contendo a requisição (sem o domínio) e o segundo é um
+					array com os parâmetros capturados pela expressão regular.</p>
+				
+				<p><b>Action:&nbsp;</b>&nbsp;Opcionalmente, você pode indicar o método (action) da classe separadamente do controlador. Ficaria
+					assim:</p>
+				
+				<pre>$router-&gt;respond('get', '/', 'Phatto/Controller', 'home');&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</pre>
+				
+				<p><b>Extra:&nbsp; </b>Você pode passar parâmetros extras para o controlador/action usando um array, aqui.</p>
+				
+				<h3>Configurações do Router</h3>
+				
+				<p>O router vem com sua configuração default adequada à maioria dos casos de uso. Mas, você poderá modificar os parâmetros de configuração para atender as suas específicas necessidades. 
+					<br>Segue abaixo uma lista dos principais parâmetros configuráveis no Config\Lib\Router.</p>
+				
+				<p><b>DefaultController:</b> Caso o parâmetro "controller" não seja indicado no método "respond", o Router usará o controlador indicado aqui.</p>
+
+				<pre>$router-&gt;setDefaultController('Namespace\Class\Controller');</pre>
+					
+				<p><b>DefaultAction: </b>Indica o "action" do controlador, caso não seja indicado.</p>
+					
+				<pre>$router-&gt;setDefaultAction('index');</pre>
+					
+				<p>O controlador e a ação (action) padrões são chamados pelo Router, também, quando uma requisição não corresponda a nenhuma "respond" programada. Neste caso, você pode usar o "default" para mostrar uma página do tipo <b>HTTP 404</b>, ao seu visitante.</p>
+								
+				<p><b>NamespacePrefix: </b>Você pode indicar um namespace para prefixar as suas classes de controle. Isso evita a excessiva repetição, por exemplo, em sistemas que concentram em um namespace específico, as classes de controle (alguns MVCs). Basta, então, indicar usando o método:</p>
+				
+				<pre>$router-&gt;setNamespacePrefix('Namespace/Prefix');</pre>
+				
+				<p>Verifique outros parâmetros de configuração na classe Config\Lib\Router.</p>
+				
+				<h3>Parâmetros de Inicialização</h3>
+
+				<p>O Router pode ser iniciado com alguns parâmetros que lhe trarão mais flexibilidade ao projeto e controle sobre o que	é processado.</p>
+				
+				<pre>( new Lib\Router( autorun,&nbsp; request, url) )-&gt;run();</pre>
+				
+				<p><i>** trecho do front controller (boot)</i></p>
+				
+				<p><b>Autorun: </b><i>booleano, default: true.</i>
+					<br>Indica se o Router deve, além de resolver as configurações da requisição web, montar e chamar a classe (ou função anônima) de controle ou apenas retornar o próprio Router para um pré-processamento, cascateamento, middleware, etc.&nbsp;</p>
+				
+				<p><b>Request: </b><i>string, default: null.</i>
+					<br>Você pode <b>injetar</b> aqui um pseudo request e o Router ignorará o verdadeiro request de acesso. Muito útil para cascateamento de routers, testes e outros.</p>
+				
+				<p><b>Url: </b><i>string, default: null.</i>
+					<br>Normalmente o Router calcula o url do domínio do seu site automaticamente, baseado nos parâmetros do servidor e da requisição ($_SERVER). Porém, em alguns casos, é necessário forçar o valor dessa url. Basta, então, indicar a url através desse parâmetro de inicialização.</p>
+				
+				<p>Segue um exemplo para o front controller:</p>
+				
+				<pre>
+$router = new Lib\Router( false, 
+                          '/produtos/89755', 
+                          'https://dominio.com' );						 
+$router-&gt;run();
+
+// capturando os dados processados
+$controller = $router-&gt;getController();
+$action     = $router-&gt;getAction();
+$params     = $router-&gt;getParams();</pre>
+				
+				<h3>Exemplos</h3>
+				<p>Veja alguns exemplos que estão (também) listados na classe Config\Lib\Router</p>
+
+				<pre>
+$route->respond('get', '/', 'Resource\Main::index')
+
+      ->respond('get', 'login', 'Blog\Page::login')
+      ->respond('get', 'blog', 'Devbr\Install\Page::index')
+
+      ->respond('get', 'blog/e/(?<id>(.*)?)', 'Blog\Page::edit')
+      ->respond('get', 'blog/(?<id>.*?)', 'Blog\Page::view')
+		
+//AJAX
+      ->respond('post', 'blog/save', 'Blog\Ajax::save')
+      ->respond('post', 'blog/checklink', 'Blog\Ajax::checkLink')
+
+      ->respond('post', 'blog/delete/(?<id>(\d+)?)', 'Blog\Ajax::delete')
+      ->respond('post', 'blog/upload/(?<id>(\d+)?)', 'Blog\Ajax::upload')
+
+//REST
+      ->respond('post',   'api/data', 'Rest/Ful::create)
+      ->respond('get',    'api/data', 'Rest/Ful::read)
+      ->respond('put',    'api/data', 'Rest/Ful::update)
+      ->respond('patch',  'api/data', 'Rest/Ful::modify)
+      ->respond('delete', 'api/data', 'Rest/Ful::delete)
+
+
+					
+Considere a url:
+http://localhost/loja/903/Camisa Polo Marca/qualquer coisa ignorada/
+
+Captura:
+	['id'] => 903
+	['produto'] => Camisa Polo Marca
+
+E ignora tudo depois de 'produto'.
+
+Veja a função "test" da classe em "/.php/Site/Front.php"
+Segue a configuração da rota, abaixo:
+
+      ->respond('get', '/loja/(?<id>.*?)/(?<produto>[^/]*).*', 'Site/Front::test')
+
+		
+A mesma configuração, porém com parametros (índice) NUMÉRICOS:
+http://localhost/loja2/903/Camisa Polo Marca/qualquer coisa ignorada/
+
+
+      ->respond('get', '/loja2/(.*?)/([^/]*).*', 'Site/Front::test')
+
+
+Usando uma função anônima diretamente na configuração do Router
+http://localhost/fac/categoria/pergunta
+
+      ->respond('get', '/fac/(.*?)/([^/]*).*',
+
+            function ($type, $user) {
+                echo '&lt;h1>Função anônima&lt;/h1>
+                &alt;p>&lt;b>Request URI:&lt;/b> '.$type.'&lt;br>
+                Parametros:&lt;/b>&lt;pre>'.print_r($user, true).'&lt;/pre>&lt;/p>';
+            }
+        )
+
+
+Usando uma função anônima para mostrar uma página HTML ESTÁTICA
+http://localhost/about
+
+      ->respond('get', '/about',
+
+            function () {
+                include _HTMLPATH.'Static/about.html';
+        })
+
+Mostrando uma página diretamente pela classe Html [ equal: Html->show('about') ]
+http://localhost/about
+
+      ->respond('get', '/about', 'Html', 'show', 'about');
+</pre>
+			
 			</div>
 		</div>
-	</main>
+	</div>
+</main>
 
-<x::part file="inc/footer"/>
+<x::part file="inc/footer" />
 
-<x::footer/> 
-
-
-
+<x::footer/>

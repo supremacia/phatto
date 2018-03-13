@@ -1,5 +1,5 @@
 //---------------------------------------------- CACHE -----------------
-const CACHE = 'phatto-0.0.4';
+const CACHE = 'phatto-0.0.5';
 const FILES = [
     '/',
     '/manual',
@@ -12,10 +12,13 @@ const FILES = [
     'https://fonts.googleapis.com/css?family=Material+Icons',
     'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css',
     '/css/style.css',
+    '/css/medium-editor.min.css'
 
     'https://code.jquery.com/jquery-3.3.1.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js',
     '/js/main.js',
+    '/js/manual.js'
+    '/js/medium-editor.min.js'
 
     '/img/frame.png',
     '/img/favicon/android-chrome-512x512.png'

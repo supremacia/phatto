@@ -26,6 +26,16 @@ img {
 sup {
     font-size: .6rem;
 }
+pre {
+    background: #002731;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    font-size: .9rem;
+    color: #FFF;
+    font-family: monaco, monospace;
+}
 .material-icons {
     vertical-align: middle
 }
