@@ -60,12 +60,10 @@ class Router
     public static $all                  = [];
     public static $routes               = [];
 
-    public static $autorun              = true;
     public static $http                 = '';
     public static $base                 = '';
     public static $params               = [];
     public static $args                 = [];
-    public static $method               = 'GET';
     public static $separator            = '::';
     public static $controller           = '';
     public static $action               = '';
